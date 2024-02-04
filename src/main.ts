@@ -12,13 +12,3 @@ addIcons(BiLinkedin, BiGithub, BiMailbox);
 
 app.component("v-icon", OhVueIcon);
 app.mount("#app");
-
-const mouseElement = document.getElementById("mouse");
-const notScrollable = document.getElementsByClassName("not-scrollable");
-
-document.addEventListener("onscroll", () => {
-  console.log("scrolling");
-  if (mouseElement) {
-    mouseElement.style.opacity = "0";
-  }
-});
