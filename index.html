@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <link rel="icon" href="/favicon.ico">
+  <link rel="icon" href="/logo.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,18 +14,6 @@
 <body class="relative h-max scrollbar">
   <div id="app"></div>
   <script type="module" src="/src/main.ts"></script>
-  <script>
-    let lightSource = null;
-    
-    
-    document.addEventListener('mousemove', (e) => {
-      lightSource = document.getElementById('light-source')
-      lightSource.style.left = e.clientX + 'px'
-      lightSource.style.top = e.clientY + 'px'
-      lightSource.style.background = `radial-gradient(600px at ${e.clientX} ${e.clientY}, rgba(29, 78, 216, 0.15), transparent 80%)`
-      lightSource.style.transform = 'translate(-50%, -50%)'
-    })
-  </script>
 </body>
 
 </html>
