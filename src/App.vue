@@ -16,13 +16,13 @@ onMounted(async () => {
 </script>
 
 <template>
-  <header class="pr-20 flex w-full justify-end relative h-full">
+  <header class="pr-20 flex w-full md:justify-end pl-10 md:pl-0 relative h-full">
     <div class="sticky w-3/4 flex flex-col justify-between py-32 h-svh top-0">
       <div class="wrapper leading-6 gap-2 flex flex-col">
         <p class="text-white/80 p-0 m-0">Visited: {{ visits }} times</p>
         <h1 class="text-5xl text-white/90 font-bold capitalize">Rodrigo Casanova</h1>
         <p class="text-xl text-sky-300/90 font-semibold">Student of Information Systems</p>
-        <p class="text-lg text-white/80 tracking-wider">I like computers!</p>
+        <p class="text-lg text-white/80">I like computers!</p>
       </div>
       <div class="flex gap-5">
         <a href="https://www.linkedin.com/in/casanovarodrigo/" target="_blank" class="hover:bg-transparent hover:before:border-b-2 relative hover:before:border-sky-300 before:absolute before:h-12 before:w-10 before:block before:content-[' '] before:border-sky-800 before:transition-all before:duration-300">
@@ -44,7 +44,7 @@ onMounted(async () => {
     <AboutMe></AboutMe>
     
     <!-- Professional -->
-    <h2 class="text-3xl group-hover/card:opacity-50 duration-500 hover:!opacity-100 text-white font-light mt-6 ml-36">Professional Experience</h2>
+    <h2 class="text-3xl group-hover/card:opacity-50 duration-500 hover:!opacity-100 text-white font-light lg:mt-6 mt-10 ml-36">Professional Experience</h2>
     <hr class="border-t-white/30 my-4 ml-36"/>
     <ActivityCard 
       title="EPIC Júnior" 
@@ -61,13 +61,13 @@ onMounted(async () => {
       <Skill skill="PostgreSQL"></Skill>
     </ActivityCard>
 
-    <h2 class="text-3xl group-hover/card:opacity-50 duration-500 hover:!opacity-100 text-white font-light mt-6 ml-36">Education</h2>
+    <h2 class="text-3xl group-hover/card:opacity-50 duration-500 hover:!opacity-100 text-white font-light lg:mt-6 mt-10 ml-36">Education</h2>
     <hr class="border-t-white/30 my-4 ml-36"/>
     <ActivityCard 
       title="Bachlor's Degree in Information Systems" 
       date="2021 — Present" 
       description="I'm currently studying <strong>Engineering and Management of Information Systems</strong> at the University of Minho, Portugal. I am expecting to end the course in <strong>june 2024</strong>
-      <ul class='my-3'> 
+      <ul class='mt-3'> 
         <li>Grade: 16/20</li>
       </ul>"
       :last=false 
@@ -84,10 +84,10 @@ onMounted(async () => {
     </ActivityCard>
 
     <!-- Side Projects -->
-    <h2 class="text-3xl group-hover/card:opacity-50 duration-500 hover:!opacity-100 text-white font-light mt-6 ml-36">Projects</h2>
+    <h2 class="text-3xl group-hover/card:opacity-50 duration-500 hover:!opacity-100 text-white font-light lg:mt-6 mt-10 ml-36">Projects</h2>
     <hr class="border-t-white/30 my-4 ml-36"/>
 
-    <ActivityCard 
+    <!-- <ActivityCard 
       title="App for Managing University Events" 
       date="OCT 2023 — Present" 
       description="I am currently developing an application to <strong>manage events</strong>. I am responsible for <strong>documenting</strong>, <strong>testing</strong> and <strong>developing</strong> the backend of the application. This app is expected to support at least 300 concurrent users and is being made with <strong>EPIC Júnior</strong>."
@@ -100,7 +100,7 @@ onMounted(async () => {
       <Skill skill="Queues"></Skill>
       <Skill skill="PWA"></Skill>
       <Skill skill="Unit Testing"></Skill>
-    </ActivityCard>
+    </ActivityCard> -->
     
     <!-- START POINT -->
     <ActivityCard 
@@ -131,7 +131,7 @@ onMounted(async () => {
     </ActivityCard>
 
     <!-- Certifications -->
-    <h2 class="text-3xl group-hover/card:opacity-50 duration-500 hover:!opacity-100 text-white font-light mt-6 ml-36">Certifications</h2>
+    <h2 class="text-3xl group-hover/card:opacity-50 duration-500 hover:!opacity-100 text-white font-light lg:mt-6 mt-10 ml-36">Certifications</h2>
     <hr class="border-t-white/30 my-4 ml-36"/>
 
     <ActivityCard 

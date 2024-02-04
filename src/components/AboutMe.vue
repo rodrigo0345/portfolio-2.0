@@ -1,6 +1,6 @@
 
 <template>
-    <article tabindex="1" class="mt-32 mb-20">
+    <article tabindex="1" class="lg:mt-32 mb-20 px-10 lg:pr-2">
         <p class="text-lg mb-4 font-light text-white/70">
             I'm a <strong>student</strong> at the University of Minho, currently in the 3rd year of the course. 
             I'm passionate about <strong>software development</strong> and <strong>IT</strong> in general, and I'm always looking for new challenges and opportunities to learn and grow.
