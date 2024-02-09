@@ -119,7 +119,7 @@ onMounted(async () => {
     <ActivityCard 
       title="Volleyball Management App" 
       date="MAY — JUN 2023" 
-      description="In this project I was responsible for developing a simple MVC using <strong>Java</strong> and <strong>MySQL</strong> to manage the Volleyball team's players, matches and trainings. This project was developed during my university course and involved a team of 11 people. I ended this course with the <strong>best grade</strong> of the class of 18/20."
+      description="I was responsible for developing a straightforward MVC system using Java and MySQL to manage players, matches, and training for the volleyball team. This project was undertaken as part of my university course, and it involved collaboration with a team of 11 people. I successfully completed this course with the highest grade in the class, achieving a score of 18/20."
       :last=false 
       role="Fullstack Developer"
       link="https://github.com/rodrigo0345/DAI-Projeto-Volley"
