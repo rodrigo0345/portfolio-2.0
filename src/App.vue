@@ -119,7 +119,7 @@ onMounted(async () => {
     <ActivityCard 
       title="Volleyball Management App" 
       date="MAY — JUN 2023" 
-      description="In this project I was responsible to develop a simple MVC using <strong>Java</strong> and <strong>MySQL</strong> to manage the Volleyball team's players, matches and trainings. This project was developed during my university course and involved a team of 11 people. I ended this course with the <strong>best grade</strong> of the class of 18/20."
+      description="In this project I was responsible for developing a simple MVC using <strong>Java</strong> and <strong>MySQL</strong> to manage the Volleyball team's players, matches and trainings. This project was developed during my university course and involved a team of 11 people. I ended this course with the <strong>best grade</strong> of the class of 18/20."
       :last=false 
       role="Fullstack Developer"
       link="https://github.com/rodrigo0345/DAI-Projeto-Volley"
@@ -148,7 +148,7 @@ onMounted(async () => {
 
     <ActivityCard 
       title="Cypher Fundamentals" 
-      date="MAY 2024" 
+      date="MAY 2023" 
       description="This was a very practical course on how to use <strong>Cypher</strong> to query and manipulate data in <strong>Neo4J</strong>. I learned a lot about <strong>graph databases</strong> and ended up having a really good grade on one my courses that required Neo4J knowledge."
       :last=false 
       role="Neo4J Graph Academy"
@@ -160,7 +160,7 @@ onMounted(async () => {
 
     <ActivityCard 
       title="Javascript Algorithms" 
-      date="JUN 2024" 
+      date="JUN 2023" 
       description="This course was an amazing first step into understanding dip down how Javascript works and how to use it to solve problems."
       :last=false 
       role="FreeCodeCamp"
