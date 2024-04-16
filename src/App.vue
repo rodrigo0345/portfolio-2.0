@@ -47,6 +47,30 @@ onMounted(async () => {
     <h2 class="text-3xl group-hover/card:opacity-50 duration-500 hover:!opacity-100 text-white font-light lg:mt-6 mt-10 ml-36">Professional Experience</h2>
     <hr class="border-t-white/30 my-4 ml-36"/>
     <ActivityCard 
+      title="AIS.SC UMINHO" 
+      date="2023 — Present" 
+      description="I'm a student core team member at AIS.SC, currently enhancing our website using
+WordPress and PHP to develop some custom plugins. Additionally, I assist companies
+during our course events."
+      :last=false 
+      role="Member of Technological Dept."
+      link="https://aissc.dsi.uminho.pt/"
+    >
+      <Skill skill="Wordpress"></Skill>
+      <Skill skill="Team Work"></Skill>
+    </ActivityCard>
+    <ActivityCard 
+      title="NTT DATA Europe & Latam" 
+      date="2023 — Present" 
+      description="This experience broadened my network and also provided me with a deeper understanding of the importance of advocacy and community outreach"
+      :last=false 
+      role="Ambassador"
+      link="https://pt.nttdata.com/"
+    >
+      <Skill skill="Communication"></Skill>
+      <Skill skill="Network"></Skill>
+    </ActivityCard>
+    <ActivityCard 
       title="EPIC Júnior" 
       date="2022 — Present" 
       description="EPIC Júnior is a <strong>Junior Enterprise</strong> that provides consulting services to companies and institutions. I am a member of the Projects Department, where I have the opportunity to interact with real <strong>clients</strong> and to develop <strong>exciting new projects.</strong>"
