@@ -24,7 +24,7 @@ import {
 } from "lucide-vue-next";
 
 const zoomValue = ref(0.0);
-let ball;
+let ball: any;
 let velocity = new THREE.Vector3(0.05, 0.1, 0.05); // Initial velocity
 const gravity = new THREE.Vector3(0, -0.002, 0); // Gravity
 
@@ -41,11 +41,11 @@ onMounted(() => {
 
   const renderer = new THREE.WebGLRenderer({ alpha: true });
   const threeSection = document.getElementById("three-section");
-  threeSection.appendChild(renderer.domElement);
+  threeSection?.appendChild(renderer.domElement);
 
   const setRendererSize = () => {
-    const width = threeSection.clientWidth;
-    const height = threeSection.clientHeight;
+    const width = threeSection?.clientWidth ?? 1;
+    const height = threeSection?.clientHeight ?? 1;
     renderer.setSize(width, height);
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
@@ -197,22 +197,22 @@ onMounted(() => {
     <ActivityCard
       title="EPIC Júnior"
       date="2024 — Present"
-      description="EPIC Júnior is a <strong>Junior Enterprise</strong> that provides consulting services to companies and institutions. With this new role I have the opportunity to take EPIC Júnior's team with real <strong>clients</strong> and to develop <strong>exciting new projects.</strong>"
+      description="EPIC Júnior is a <strong>Junior Enterprise</strong> that provides consulting services to companies and institutions. This challenging role represents a unique opportunity to contribute innovative ideas and drive the development of significant projects within EPIC Júnior, always upholding the quality and excellence of our work."
       :last="false"
       role="Director of Innovation of Projects Dept."
       link="https://epicje.pt/"
     >
       <Skill skill="DevOps">
-        <Workflow size="20" />
+        <Workflow :size="20" />
       </Skill>
       <Skill skill="Docker">
-        <Container size="20" />
+        <Container :size="20" />
       </Skill>
       <Skill skill="Team Management">
-        <SquareKanban size="20" />
+        <SquareKanban :size="20" />
       </Skill>
       <Skill skill="Leadership">
-        <Award size="20" />
+        <Award :size="20" />
       </Skill>
     </ActivityCard>
 
@@ -225,19 +225,19 @@ onMounted(() => {
       link="https://epicje.pt/"
     >
       <Skill skill="Wordpress">
-        <AppWindow size="20" />
+        <AppWindow :size="20" />
       </Skill>
       <Skill skill="Node.js">
-        <CirclePlay size="20" />
+        <CirclePlay :size="20" />
       </Skill>
       <Skill skill="Redis">
-        <DatabaseZap size="20" />
+        <DatabaseZap :size="20" />
       </Skill>
       <Skill skill="Nginx">
-        <Waypoints size="20" />
+        <Waypoints :size="20" />
       </Skill>
       <Skill skill="PostgreSQL">
-        <Database size="20" />
+        <Database :size="20" />
       </Skill>
     </ActivityCard>
     <ActivityCard
@@ -251,10 +251,10 @@ during our course events."
       link="https://aissc.dsi.uminho.pt/"
     >
       <Skill skill="Wordpress">
-        <AppWindow size="20" />
+        <AppWindow :size="20" />
       </Skill>
       <Skill skill="Team Work">
-        <Slack size="20" />
+        <Slack :size="20" />
       </Skill>
     </ActivityCard>
     <ActivityCard
@@ -266,10 +266,10 @@ during our course events."
       link="https://pt.nttdata.com/"
     >
       <Skill skill="Communication">
-        <MessageCircleMore size="20" />
+        <MessageCircleMore :size="20" />
       </Skill>
       <Skill skill="Network">
-        <Contact size="20" />
+        <Contact :size="20" />
       </Skill>
     </ActivityCard>
 
