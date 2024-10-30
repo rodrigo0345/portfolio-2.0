@@ -108,18 +108,26 @@ onMounted(() => {
 
   const trailLength = 100;
   const trailPositions = new Float32Array(trailLength * 3);
-  const trailGeometry = new BufferGeometry();
-  trailGeometry.setAttribute(
-    "position",
-    new THREE.Float32BufferAttribute(trailPositions, 3)
-  );
-  const trailMaterial = new LineBasicMaterial({
-    color: 0x00ffff,
+  const trailGeometry = new THREE.BufferGeometry();
+  const positionAttribute = new THREE.Float32BufferAttribute(trailPositions, 3);
+  trailGeometry.setAttribute("position", positionAttribute);
+
+  const trailMaterial = new THREE.LineBasicMaterial({
+    color: 0xffffff,
     transparent: true,
-    opacity: 0.8,
+    blending: THREE.AdditiveBlending,
+    opacity: 1.8,
   });
-  const trail = new Line(trailGeometry, trailMaterial);
+
+  const trail = new THREE.Line(trailGeometry, trailMaterial);
   scene.add(trail);
+
+  // init positions
+  for (let i = 0; i < trailLength; i++) {
+    trailPositions[i * 3] = 0;
+    trailPositions[i * 3 + 1] = 0;
+    trailPositions[i * 3 + 2] = 0;
+  }
 
   // Flame setup
   const flameMaterial = new THREE.PointsMaterial({
@@ -189,6 +197,25 @@ onMounted(() => {
   let turbulenceDelay = 100;
   let turbulenceCounter = 0;
 
+  let wKeyPressed = false;
+
+  // Event handlers
+  const handleKeyDown = (event: any) => {
+    if (event.key === "w" || event.key === "W") {
+      wKeyPressed = true;
+    }
+  };
+
+  const handleKeyUp = (event: any) => {
+    if (event.key === "w" || event.key === "W") {
+      wKeyPressed = false;
+    }
+  };
+
+  // Add event listeners
+  window.addEventListener("keydown", handleKeyDown);
+  window.addEventListener("keyup", handleKeyUp);
+
   const animateFlames = (deltaTime: number) => {
     for (let i = 0; i < 100; i++) {
       // Update positions based on velocity
@@ -252,6 +279,29 @@ onMounted(() => {
     flameGeometry.attributes.color.needsUpdate = true;
   };
 
+  const animateWing1 = (deltaTime: number) => {
+    const wing1Offset = new THREE.Vector3(-0.3, 0.0, 0.5); // Adjust as needed
+    const rotatedWingPosition = wing1Offset
+      .clone()
+      .applyQuaternion(f22.quaternion);
+    const wingPosition = f22.position.clone().add(rotatedWingPosition);
+
+    // Shift trail positions down by one
+    for (let i = trailLength - 1; i > 0; i--) {
+      trailPositions[i * 3] = trailPositions[(i - 1) * 3];
+      trailPositions[i * 3 + 1] = trailPositions[(i - 1) * 3 + 1];
+      trailPositions[i * 3 + 2] = trailPositions[(i - 1) * 3 + 2];
+    }
+
+    // Set the first position to the wing's current position
+    trailPositions[0] = wingPosition.x;
+    trailPositions[1] = wingPosition.y;
+    trailPositions[2] = wingPosition.z;
+
+    // Notify Three.js that the position attribute needs to be updated
+    positionAttribute.needsUpdate = true;
+  };
+
   let previousTime = performance.now();
 
   const animate = () => {
@@ -261,15 +311,7 @@ onMounted(() => {
     previousTime = currentTime;
 
     if (f22) {
-      for (let i = trailLength - 1; i > 0; i--) {
-        trailPositions[i * 3] = trailPositions[(i - 1) * 3];
-        trailPositions[i * 3 + 1] = trailPositions[(i - 1) * 3 + 1];
-        trailPositions[i * 3 + 2] = trailPositions[(i - 1) * 3 + 2];
-      }
-      trailPositions[0] = f22.position.x;
-      trailPositions[1] = f22.position.y;
-      trailPositions[2] = f22.position.z;
-
+      // animateWing1(deltaTime); no time
       // Update trail geometry each frame to ensure visibility
       trailGeometry.setAttribute(
         "position",
@@ -277,6 +319,20 @@ onMounted(() => {
       );
 
       const exhaustOffset = new THREE.Vector3(-0.5, 0.1, 0.5); // Position behind and slightly below the plane's center
+
+      if (wKeyPressed) {
+        // Ensure flames are visible
+        flames.visible = true;
+
+        // Update flame animation
+        animateFlames(deltaTime);
+
+        // Update flame geometry
+        flameGeometry.attributes.position.needsUpdate = true;
+      } else {
+        // Hide flames when 'W' is not pressed
+        flames.visible = false;
+      }
 
       for (let i = 0; i < 100; i++) {
         const angle = Math.random() * Math.PI * 2;
@@ -356,6 +412,8 @@ onMounted(() => {
   });
 
   onBeforeUnmount(() => {
+    window.removeEventListener("keydown", handleKeyDown);
+    window.removeEventListener("keyup", handleKeyUp);
     window.removeEventListener("scroll", () => {
       zoomValue.value = window.scrollY / window.innerHeight;
     });
