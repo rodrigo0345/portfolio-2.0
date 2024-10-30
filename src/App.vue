@@ -22,6 +22,7 @@ import {
   Github,
   Linkedin,
 } from "lucide-vue-next";
+import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 
 const zoomValue = ref(0.0);
 let ball: any;
@@ -62,6 +63,27 @@ onMounted(() => {
   const directionalLight = new THREE.DirectionalLight(0xffffff, 0.000001);
   directionalLight.position.set(5, 10, 7.5);
   scene.add(directionalLight);
+
+  // load f22
+  const objLoader = new OBJLoader();
+  objLoader.load(
+    "f22.obj",
+    (object) => {
+      // paing the object
+      object.traverse((child) => {
+        if (child instanceof THREE.Mesh) {
+          child.material.color.set(0x0ea5e9);
+        }
+      });
+      scene.add(object);
+    },
+    (xhr) => {
+      console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
+    },
+    (error) => {
+      console.log("An error happened", error);
+    },
+  )
 
   camera.position.z = 2;
 
@@ -139,7 +161,7 @@ onMounted(() => {
           Rodrigo Casanova
         </h1>
         <p class="text-xl text-sky-500 font-semibold">
-          Degree in Information Systems
+          Master's Student in Software Engineering
         </p>
       </div>
       <section
@@ -185,6 +207,47 @@ onMounted(() => {
     class="group/card relative flex flex-col max-w-[600px] flex-grow scroll scrollbar pb-32"
   >
     <AboutMe></AboutMe>
+    
+    <!-- Education -->
+    <h2
+      class="text-3xl duration-500 hover:!opacity-100 text-white lg:mt-6 mt-10 ml-36 font-bold"
+    >
+      Education
+    </h2>
+    <hr class="border-t-white/30 my-4 ml-36" />
+    <ActivityCard
+      title="Master's Degree in Software Engineering"
+      date="2024 — Present"
+      description="I am currently studying <strong>Software Engineering</strong> at the University of Minho, Portugal. I expect to end my master's degree in 2026."
+      :last="false"
+      role="University of Minho"
+    >
+      <Skill skill="Go"></Skill>
+      <Skill skill="Python"></Skill>
+      <Skill skill="Computer Arquitectures"></Skill>
+      <Skill skill="Kubernetes"></Skill>
+      <Skill skill="Networks"></Skill>
+      <Skill skill="Machine Learning"></Skill>
+    </ActivityCard>
+    <ActivityCard
+      title="Bachlor's Degree in Information Systems"
+      date="2021 — 2024"
+      description="I studied <strong>Engineering and Management of Information Systems</strong> at the University of Minho, Portugal. 
+      <ul class='mt-3'>
+        <li>Grade: 16/20</li>
+      </ul>"
+      :last="false"
+      role="University of Minho"
+    >
+      <Skill skill="Java"></Skill>
+      <Skill skill="Javascript"></Skill>
+      <Skill skill="CSS"></Skill>
+      <Skill skill="Algorithms"></Skill>
+      <Skill skill="Networks"></Skill>
+      <Skill skill="Data Structures"></Skill>
+      <Skill skill="Software Engineering"></Skill>
+      <Skill skill="SAP"></Skill>
+    </ActivityCard>
 
     <!-- Professional -->
     <h2
@@ -273,31 +336,6 @@ during our course events."
       </Skill>
     </ActivityCard>
 
-    <h2
-      class="text-3xl duration-500 hover:!opacity-100 text-white lg:mt-6 mt-10 ml-36 font-bold"
-    >
-      Education
-    </h2>
-    <hr class="border-t-white/30 my-4 ml-36" />
-    <ActivityCard
-      title="Bachlor's Degree in Information Systems"
-      date="2021 — Present"
-      description="I'm currently studying <strong>Engineering and Management of Information Systems</strong> at the University of Minho, Portugal. I am expecting to end the course in <strong>june 2024</strong>
-      <ul class='mt-3'>
-        <li>Grade: 16/20</li>
-      </ul>"
-      :last="false"
-      role="University of Minho"
-    >
-      <Skill skill="Java"></Skill>
-      <Skill skill="Javascript"></Skill>
-      <Skill skill="CSS"></Skill>
-      <Skill skill="Algorithms"></Skill>
-      <Skill skill="Networks"></Skill>
-      <Skill skill="Data Structures"></Skill>
-      <Skill skill="Software Engineering"></Skill>
-      <Skill skill="SAP"></Skill>
-    </ActivityCard>
 
     <!-- Side Projects -->
     <h2
@@ -359,9 +397,21 @@ during our course events."
     <hr class="border-t-white/30 my-4 ml-36" />
 
     <ActivityCard
+      title="3D Graphics Programming from Scratch"
+      date="JUL 2024"
+      description="I took this course out of genuine curiosity and I found it to be one of the most interesting courses I have ever taken. I learned a lot about <strong>3D graphics</strong> and how to create <strong>3D models</strong> from scratch. I learned concepts as backface culling, z-buffering, simple shading technics, etc..."
+      :last="false"
+      role="pikuma.com"
+      link="https://courses.pikuma.com/certificates/4gjmahqcda"
+    >
+      <Skill skill="Graphics"></Skill>
+      <Skill skill="Math"></Skill>
+    </ActivityCard>
+
+    <ActivityCard
       title="Foundational C#"
       date="JAN 2024"
-      description="As I said in my introduction, I am focused on learning <strong>.NET</strong> and <strong>C#</strong> and this certification helped me <strong>getting started</strong> with the language."
+      description="I am focused on learning <strong>.NET</strong> and <strong>C#</strong> and this certification helped me <strong>getting started</strong> with the language."
       :last="false"
       role="FreeCodeCamp"
       link="https://www.freecodecamp.org/certification/fcc14e961b3-4818-4ae8-8255-d8cc731041f7/foundational-c-sharp-with-microsoft"
