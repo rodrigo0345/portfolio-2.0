@@ -23,22 +23,24 @@ import {
   Linkedin,
 } from "lucide-vue-next";
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+import { BufferGeometry, Float32BufferAttribute, LineBasicMaterial, Line, PointsMaterial, Points, Vector3 } from 'three';
 
 const zoomValue = ref(0.0);
-let ball: any;
-let velocity = new THREE.Vector3(0.05, 0.1, 0.05); // Initial velocity
-const gravity = new THREE.Vector3(0, -0.002, 0); // Gravity
-
-const bounceFactor = 0.7;
+let f22: any; // Variable to hold the F22 model
+let mouseX = 0; // Mouse position X normalized
+let mouseY = 0; // Mouse position Y normalized
+let targetRotationX = 0; // Target rotation X (pitch)
+let targetRotationY = 0; // Target rotation Y (yaw)
 
 onMounted(() => {
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(
-    75,
+    60,
     window.innerWidth / window.innerHeight,
     0.1,
-    1000,
+    1000
   );
+  camera.position.z = 3; // Adjust camera closer for visibility
 
   const renderer = new THREE.WebGLRenderer({ alpha: true });
   const threeSection = document.getElementById("three-section");
@@ -55,100 +57,217 @@ onMounted(() => {
   setRendererSize();
   window.addEventListener("resize", setRendererSize);
 
-  const geometry = new THREE.SphereGeometry(0.2, 32, 32);
-  const material = new THREE.MeshBasicMaterial({ color: 0x0ea5e9 });
-  ball = new THREE.Mesh(geometry, material);
-  scene.add(ball);
-
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 0.000001);
-  directionalLight.position.set(5, 10, 7.5);
+  // Set up lighting for better visibility
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+  directionalLight.position.set(5, 5, 5);
   scene.add(directionalLight);
 
-  // load f22
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // Add soft ambient light
+  scene.add(ambientLight);
+
+  const textureLoader = new THREE.TextureLoader();
+  const planeTexture = textureLoader.load("f22.png");
+
+  // Load the F22 model
   const objLoader = new OBJLoader();
   objLoader.load(
     "f22.obj",
     (object) => {
-      // paing the object
       object.traverse((child) => {
         if (child instanceof THREE.Mesh) {
-          child.material.color.set(0x0ea5e9);
+          child.material = new THREE.MeshStandardMaterial({
+            map: planeTexture,
+          });
         }
       });
-      scene.add(object);
+      f22 = object;
+      f22.scale.set(0.4, 0.4, 0.4);
+      f22.position.set(0, 0, 0);
+      scene.add(f22);
     },
     (xhr) => {
       console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
     },
     (error) => {
       console.log("An error happened", error);
-    },
-  )
+    }
+  );
 
-  camera.position.z = 2;
+  window.addEventListener("mousemove", (event) => {
+    mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+    mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+  });
+
+  const trailLength = 100;
+  const trailPositions = new Float32Array(trailLength * 3);
+  const trailGeometry = new BufferGeometry();
+  trailGeometry.setAttribute('position', new THREE.Float32BufferAttribute(trailPositions, 3));
+  const trailMaterial = new LineBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.8 });
+  const trail = new Line(trailGeometry, trailMaterial);
+  scene.add(trail);
+
+  // Flame setup
+  const flameMaterial = new THREE.PointsMaterial({
+    vertexColors: true, // Allows each particle to have a unique color
+    size: 0.1,
+    transparent: true,
+    opacity: 0.8,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending, // Additive blending for a glowing effect
+});
+const flameGeometry = new THREE.BufferGeometry();
+const flamePositions = new Float32Array(100 * 3); // 100 particles
+const flameSizes = new Float32Array(100); // Particle sizes
+const flameColors = new Float32Array(100 * 3); // Colors (R, G, B for each particle)
+
+// Set up initial flame particle positions, sizes, and colors
+for (let i = 0; i < 100; i++) {
+    flamePositions[i * 3] = 0; // Start at the origin; positions will be updated each frame
+    flamePositions[i * 3 + 1] = 0;
+    flamePositions[i * 3 + 2] = 0;
+
+    // Give each particle a slightly different size
+    flameSizes[i] = 0.05 + Math.random() * 0.15; // Size range between 0.05 and 0.2
+
+    // Set colors with a gradient from bright orange to lighter yellow
+    flameColors[i * 3] = 1.0; // Red component
+    flameColors[i * 3 + 1] = Math.random() * 0.5; // Randomized green component for variation
+    flameColors[i * 3 + 2] = 0; // Blue component (orange/yellow hues)
+}
+
+// Apply attributes to geometry
+flameGeometry.setAttribute('position', new THREE.Float32BufferAttribute(flamePositions, 3));
+flameGeometry.setAttribute('size', new THREE.Float32BufferAttribute(flameSizes, 1));
+flameGeometry.setAttribute('color', new THREE.Float32BufferAttribute(flameColors, 3));
+
+const flames = new THREE.Points(flameGeometry, flameMaterial);
+scene.add(flames);
+
+  let turbulenceIntensity = 0.05;
+  let turbulenceDelay = 100;
+  let turbulenceCounter = 0;
+
+  const animateFlames = () => {
+    for (let i = 0; i < 100; i++) {
+        // Randomize each particle's position near the exhaust and simulate outward movement
+        const angle = Math.random() * Math.PI * 2;
+        const radius = Math.random() * 0.05;
+        
+        // Adjust x and y for slight spread
+        flamePositions[i * 3] = Math.cos(angle) * radius; // Spread on x-axis
+        flamePositions[i * 3 + 1] = -0.1 + Math.random() * 0.6; // Spread on y-axis
+        
+        // Stretch effect on z-axis for longer flames
+        flamePositions[i * 3 + 2] = -0.5 - Math.random() * 0.5; // Stretched further along z-axis
+        
+        // Additional backward movement to extend flames
+        flamePositions[i * 3 + 2] -= Math.random() * 0.2; // Slight backward movement each frame
+
+        // Add some flickering effect by adjusting the opacity randomly
+        flameColors[i * 3 + 1] = Math.random() * 0.5; // Flickering in the green channel
+    }
+
+    // Update flame geometry to apply changes each frame
+    flameGeometry.attributes.position.needsUpdate = true;
+    flameGeometry.attributes.color.needsUpdate = true;
+};
 
   const animate = () => {
-    if (ball) {
-      // Apply gravity
-      velocity.add(gravity);
+    requestAnimationFrame(animate);
+    animateFlames()
 
-      // Update ball position
-      ball.position.add(velocity);
+    if (f22) {
+      for (let i = trailLength - 1; i > 0; i--) {
+          trailPositions[i * 3] = trailPositions[(i - 1) * 3];
+          trailPositions[i * 3 + 1] = trailPositions[(i - 1) * 3 + 1];
+          trailPositions[i * 3 + 2] = trailPositions[(i - 1) * 3 + 2];
+      }
+      trailPositions[0] = f22.position.x;
+      trailPositions[1] = f22.position.y;
+      trailPositions[2] = f22.position.z;
 
-      const friction = 1.0101;
+      // Update trail geometry each frame to ensure visibility
+      trailGeometry.setAttribute('position', new THREE.Float32BufferAttribute(trailPositions, 3));
 
-      // Check for collision with the floor
-      if (ball.position.y - 0.2 <= -1) {
-        ball.position.y = -0.8;
-        velocity.y = -velocity.y * bounceFactor;
+      const exhaustOffset = new THREE.Vector3(-0.6, 0.1, 0.5); // Position behind and slightly below the plane's center
+
+      for (let i = 0; i < 100; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const radius = Math.random() * 0.05;
+
+          // Generate small random offsets around the exhaust area
+          const flameOffset = new THREE.Vector3(
+              Math.cos(angle) * radius,
+              Math.sin(angle) * radius - 0.1, // Small y-offset for variation
+              -0.5 // Place behind the plane's initial exhaust
+          );
+
+          // Clone the exhaust offset and rotate it by the plane's rotation
+          const rotatedExhaustPosition = exhaustOffset.clone().add(flameOffset);
+          rotatedExhaustPosition.applyQuaternion(f22.quaternion); // Apply the plane's rotation
+
+          // Position flames at the rotated exhaust position relative to the plane's current position
+          const flamePosition = f22.position.clone().add(rotatedExhaustPosition);
+          flamePositions[i * 3] = flamePosition.x;
+          flamePositions[i * 3 + 1] = flamePosition.y;
+          flamePositions[i * 3 + 2] = flamePosition.z;
       }
 
-      // Check for collision with the walls
-      if (ball.position.x + 0.2 >= 1 || ball.position.x - 0.2 <= -1) {
-        velocity.x = -velocity.x;
+// Update flame geometry each frame to ensure visibility
+flameGeometry.setAttribute('position', new THREE.Float32BufferAttribute(flamePositions, 3));
+
+      // Turbulence effect
+      turbulenceCounter++;
+      if (turbulenceCounter >= turbulenceDelay) {
+          turbulenceCounter = 0;
+          const turbulenceX = (Math.random() - 0.5) * turbulenceIntensity;
+          const turbulenceY = (Math.random() - 0.5) * turbulenceIntensity;
+
+          targetRotationX += turbulenceX;
+          targetRotationY += turbulenceY;
       }
 
-      // Check for collision with the ceiling
-      if (ball.position.y + 0.2 >= 1) {
-        velocity.y = -velocity.y;
-      }
+      // Mouse interaction
+      const mouseInfluence = 1.2;
+      const desiredRotationX = mouseY * mouseInfluence;
+      const desiredRotationY = mouseX * mouseInfluence;
 
-      // Check for collision with the front and back walls
-      if (ball.position.z + 0.2 >= 1 || ball.position.z - 0.2 <= -1) {
-        velocity.z = -velocity.z;
-      }
+      targetRotationX += (desiredRotationX - targetRotationX) * 0.05;
+      targetRotationY += (desiredRotationY - targetRotationY) * 0.05;
 
-      velocity.x /= friction;
-      velocity.y /= friction;
-      velocity.z /= friction;
+      const maxRotation = Math.PI / 8;
+      targetRotationX = THREE.MathUtils.clamp(targetRotationX, -maxRotation, maxRotation);
+      targetRotationY = THREE.MathUtils.clamp(targetRotationY, -maxRotation, maxRotation);
 
-      ball.color;
+      const rotationSmoothness = 0.05;
+      f22.rotation.x += (targetRotationX - f22.rotation.x) * rotationSmoothness;
+      f22.rotation.y += (targetRotationY - f22.rotation.y) * rotationSmoothness;
+
+      // Camera follow
+      const offset = new THREE.Vector3(0, 1.5, 1.5);
+      const cameraPosition = f22.position.clone().add(offset);
+      camera.position.lerp(cameraPosition, 0.1);
+      camera.lookAt(f22.position);
     }
 
     renderer.render(scene, camera);
   };
 
-  renderer.setAnimationLoop(animate);
-
-  const handleBallClick = () => {
-    // Reset ball position and velocity
-    ball.position.set(0, 0, 0);
-    velocity.set(
-      Math.random() * 0.2 - 0.1,
-      Math.random() * 0.2,
-      Math.random() * 0.2 - 0.1,
-    );
-  };
+  animate();
 
   window.addEventListener("scroll", () => {
     zoomValue.value = window.scrollY / window.innerHeight;
   });
+
   onBeforeUnmount(() => {
     window.removeEventListener("scroll", () => {
       zoomValue.value = window.scrollY / window.innerHeight;
     });
+    window.removeEventListener("mousemove", () => {});
   });
 });
+
+
 </script>
 
 <template>
