@@ -22,8 +22,16 @@ import {
   Github,
   Linkedin,
 } from "lucide-vue-next";
-import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
-import { BufferGeometry, Float32BufferAttribute, LineBasicMaterial, Line, PointsMaterial, Points, Vector3 } from 'three';
+import { OBJLoader } from "three/addons/loaders/OBJLoader.js";
+import {
+  BufferGeometry,
+  Float32BufferAttribute,
+  LineBasicMaterial,
+  Line,
+  PointsMaterial,
+  Points,
+  Vector3,
+} from "three";
 
 const zoomValue = ref(0.0);
 let f22: any; // Variable to hold the F22 model
@@ -101,27 +109,37 @@ onMounted(() => {
   const trailLength = 100;
   const trailPositions = new Float32Array(trailLength * 3);
   const trailGeometry = new BufferGeometry();
-  trailGeometry.setAttribute('position', new THREE.Float32BufferAttribute(trailPositions, 3));
-  const trailMaterial = new LineBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.8 });
+  trailGeometry.setAttribute(
+    "position",
+    new THREE.Float32BufferAttribute(trailPositions, 3)
+  );
+  const trailMaterial = new LineBasicMaterial({
+    color: 0x00ffff,
+    transparent: true,
+    opacity: 0.8,
+  });
   const trail = new Line(trailGeometry, trailMaterial);
   scene.add(trail);
 
   // Flame setup
   const flameMaterial = new THREE.PointsMaterial({
     vertexColors: true, // Allows each particle to have a unique color
-    size: 0.1,
+    size: 0.09,
     transparent: true,
     opacity: 0.8,
     depthWrite: false,
     blending: THREE.AdditiveBlending, // Additive blending for a glowing effect
-});
-const flameGeometry = new THREE.BufferGeometry();
-const flamePositions = new Float32Array(100 * 3); // 100 particles
-const flameSizes = new Float32Array(100); // Particle sizes
-const flameColors = new Float32Array(100 * 3); // Colors (R, G, B for each particle)
+    polygonOffset: true,
+  });
+  const flameGeometry = new THREE.BufferGeometry();
+  const flamePositions = new Float32Array(100 * 3); // 100 particles
+  const flameSizes = new Float32Array(100); // Particle sizes
+  const flameColors = new Float32Array(100 * 3); // Colors (R, G, B for each particle)
+  const flameVelocities = new Float32Array(100 * 3); // Velocities for each particle
+  const flameLifetimes = new Float32Array(100);
 
-// Set up initial flame particle positions, sizes, and colors
-for (let i = 0; i < 100; i++) {
+  // Set up initial flame particle positions, sizes, and colors
+  for (let i = 0; i < 100; i++) {
     flamePositions[i * 3] = 0; // Start at the origin; positions will be updated each frame
     flamePositions[i * 3 + 1] = 0;
     flamePositions[i * 3 + 2] = 0;
@@ -130,101 +148,171 @@ for (let i = 0; i < 100; i++) {
     flameSizes[i] = 0.05 + Math.random() * 0.15; // Size range between 0.05 and 0.2
 
     // Set colors with a gradient from bright orange to lighter yellow
-    flameColors[i * 3] = 1.0; // Red component
-    flameColors[i * 3 + 1] = Math.random() * 0.5; // Randomized green component for variation
-    flameColors[i * 3 + 2] = 0; // Blue component (orange/yellow hues)
-}
+    flameColors[i * 3] = 0.3 + Math.random() * 0.4; // Red component
+    flameColors[i * 3 + 1] = 0.1; // Green component
+    flameColors[i * 3 + 2] = 0.1 + Math.random() * 0.4;
 
-// Apply attributes to geometry
-flameGeometry.setAttribute('position', new THREE.Float32BufferAttribute(flamePositions, 3));
-flameGeometry.setAttribute('size', new THREE.Float32BufferAttribute(flameSizes, 1));
-flameGeometry.setAttribute('color', new THREE.Float32BufferAttribute(flameColors, 3));
+    flamePositions[i * 3] = 0;
+    flamePositions[i * 3 + 1] = 0;
+    flamePositions[i * 3 + 2] = 0;
 
-const flames = new THREE.Points(flameGeometry, flameMaterial);
-scene.add(flames);
+    // Set initial velocities with random spread
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 0.4 + Math.random() * 1; // Adjust speed as desired
+
+    flameVelocities[i * 3] = Math.cos(angle) * speed;
+    flameVelocities[i * 3 + 1] = Math.sin(angle) * speed;
+    flameVelocities[i * 3 + 2] = -speed; // Move backward along the z-axis
+
+    // Set initial lifetimes
+    flameLifetimes[i] = 1 + Math.random() * 2;
+  }
+
+  // Apply attributes to geometry
+  flameGeometry.setAttribute(
+    "position",
+    new THREE.Float32BufferAttribute(flamePositions, 3)
+  );
+  flameGeometry.setAttribute(
+    "size",
+    new THREE.Float32BufferAttribute(flameSizes, 1)
+  );
+  flameGeometry.setAttribute(
+    "color",
+    new THREE.Float32BufferAttribute(flameColors, 3)
+  );
+
+  const flames = new THREE.Points(flameGeometry, flameMaterial);
+  scene.add(flames);
 
   let turbulenceIntensity = 0.05;
   let turbulenceDelay = 100;
   let turbulenceCounter = 0;
 
-  const animateFlames = () => {
+  const animateFlames = (deltaTime: number) => {
     for (let i = 0; i < 100; i++) {
-        // Randomize each particle's position near the exhaust and simulate outward movement
-        const angle = Math.random() * Math.PI * 2;
-        const radius = Math.random() * 0.05;
-        
-        // Adjust x and y for slight spread
-        flamePositions[i * 3] = Math.cos(angle) * radius; // Spread on x-axis
-        flamePositions[i * 3 + 1] = -0.1 + Math.random() * 0.6; // Spread on y-axis
-        
-        // Stretch effect on z-axis for longer flames
-        flamePositions[i * 3 + 2] = -0.5 - Math.random() * 0.5; // Stretched further along z-axis
-        
-        // Additional backward movement to extend flames
-        flamePositions[i * 3 + 2] -= Math.random() * 0.2; // Slight backward movement each frame
+      // Update positions based on velocity
+      flamePositions[i * 3] += flameVelocities[i * 3] * deltaTime;
+      flamePositions[i * 3 + 1] += flameVelocities[i * 3 + 1] * deltaTime;
+      flamePositions[i * 3 + 2] += flameVelocities[i * 3 + 2] * deltaTime;
 
-        // Add some flickering effect by adjusting the opacity randomly
-        flameColors[i * 3 + 1] = Math.random() * 0.5; // Flickering in the green channel
+      // Decrease lifetime
+      flameLifetimes[i] -= deltaTime;
+
+      // Reset particle if lifetime has expired
+      if (flameLifetimes[i] <= 0) {
+        // Reset position to the exhaust position relative to the plane
+        const exhaustOffset = new THREE.Vector3(-0.5, 0.0, 0.0); // Adjust as needed
+        const rotatedExhaustPosition = exhaustOffset
+          .clone()
+          .applyQuaternion(f22.quaternion);
+        const exhaustPosition = f22.position
+          .clone()
+          .add(rotatedExhaustPosition);
+
+        flamePositions[i * 3] = exhaustPosition.x;
+        flamePositions[i * 3 + 1] = exhaustPosition.y;
+        flamePositions[i * 3 + 2] = exhaustPosition.z;
+
+        // Reset velocity with random spread
+        const forwardVector = new THREE.Vector3(-0.1, 0, 0).applyQuaternion(
+          f22.quaternion
+        );
+        const spreadAngle = 0.2; // Adjust spread as desired
+        const randomAxis = new THREE.Vector3(
+          Math.random(),
+          Math.random(),
+          Math.random()
+        ).normalize();
+        const randomAngle = (Math.random() - 0.4) * spreadAngle;
+        const quaternion = new THREE.Quaternion().setFromAxisAngle(
+          randomAxis,
+          randomAngle
+        );
+        const velocityVector = forwardVector
+          .clone()
+          .applyQuaternion(quaternion);
+        const speed = 1 + Math.random() * 2; // Adjust speed as desired
+
+        flameVelocities[i * 3] = velocityVector.x * speed;
+        flameVelocities[i * 3 + 1] = velocityVector.y * speed;
+        flameVelocities[i * 3 + 2] = velocityVector.z * speed;
+
+        // Reset lifetime
+        flameLifetimes[i] = 1 + Math.random() * 2; // Lifetime between 1 and 3 seconds
+      }
+
+      // Optional: Update colors or opacity based on lifetime for fade-out effect
+      // Example: flameColors[i * 3 + 3] = flameLifetimes[i] / maxLifetime; // Adjust opacity
     }
 
     // Update flame geometry to apply changes each frame
     flameGeometry.attributes.position.needsUpdate = true;
+    // If you updated colors or opacity:
     flameGeometry.attributes.color.needsUpdate = true;
-};
+  };
+
+  let previousTime = performance.now();
 
   const animate = () => {
     requestAnimationFrame(animate);
-    animateFlames()
+    const currentTime = performance.now();
+    const deltaTime = (currentTime - previousTime) / 1000; // Convert to seconds
+    previousTime = currentTime;
 
     if (f22) {
       for (let i = trailLength - 1; i > 0; i--) {
-          trailPositions[i * 3] = trailPositions[(i - 1) * 3];
-          trailPositions[i * 3 + 1] = trailPositions[(i - 1) * 3 + 1];
-          trailPositions[i * 3 + 2] = trailPositions[(i - 1) * 3 + 2];
+        trailPositions[i * 3] = trailPositions[(i - 1) * 3];
+        trailPositions[i * 3 + 1] = trailPositions[(i - 1) * 3 + 1];
+        trailPositions[i * 3 + 2] = trailPositions[(i - 1) * 3 + 2];
       }
       trailPositions[0] = f22.position.x;
       trailPositions[1] = f22.position.y;
       trailPositions[2] = f22.position.z;
 
       // Update trail geometry each frame to ensure visibility
-      trailGeometry.setAttribute('position', new THREE.Float32BufferAttribute(trailPositions, 3));
+      trailGeometry.setAttribute(
+        "position",
+        new THREE.Float32BufferAttribute(trailPositions, 3)
+      );
 
-      const exhaustOffset = new THREE.Vector3(-0.6, 0.1, 0.5); // Position behind and slightly below the plane's center
+      const exhaustOffset = new THREE.Vector3(-0.5, 0.1, 0.5); // Position behind and slightly below the plane's center
 
       for (let i = 0; i < 100; i++) {
-          const angle = Math.random() * Math.PI * 2;
-          const radius = Math.random() * 0.05;
+        const angle = Math.random() * Math.PI * 2;
+        const radius = Math.random() * 0.05;
 
-          // Generate small random offsets around the exhaust area
-          const flameOffset = new THREE.Vector3(
-              Math.cos(angle) * radius,
-              Math.sin(angle) * radius - 0.1, // Small y-offset for variation
-              -0.5 // Place behind the plane's initial exhaust
-          );
+        // Generate small random offsets around the exhaust area
+        const flameOffset = new THREE.Vector3(
+          Math.cos(angle) * radius,
+          Math.sin(angle) * radius - 0.1, // Small y-offset for variation
+          -0.5 // Place behind the plane's initial exhaust
+        );
 
-          // Clone the exhaust offset and rotate it by the plane's rotation
-          const rotatedExhaustPosition = exhaustOffset.clone().add(flameOffset);
-          rotatedExhaustPosition.applyQuaternion(f22.quaternion); // Apply the plane's rotation
+        // Clone the exhaust offset and rotate it by the plane's rotation
+        const rotatedExhaustPosition = exhaustOffset.clone().add(flameOffset);
+        rotatedExhaustPosition.applyQuaternion(f22.quaternion); // Apply the plane's rotation
 
-          // Position flames at the rotated exhaust position relative to the plane's current position
-          const flamePosition = f22.position.clone().add(rotatedExhaustPosition);
-          flamePositions[i * 3] = flamePosition.x;
-          flamePositions[i * 3 + 1] = flamePosition.y;
-          flamePositions[i * 3 + 2] = flamePosition.z;
+        // Position flames at the rotated exhaust position relative to the plane's current position
+
+        animateFlames(deltaTime);
       }
 
-// Update flame geometry each frame to ensure visibility
-flameGeometry.setAttribute('position', new THREE.Float32BufferAttribute(flamePositions, 3));
+      // Update flame geometry each frame to ensure visibility
+      flameGeometry.setAttribute(
+        "position",
+        new THREE.Float32BufferAttribute(flamePositions, 3)
+      );
 
       // Turbulence effect
       turbulenceCounter++;
       if (turbulenceCounter >= turbulenceDelay) {
-          turbulenceCounter = 0;
-          const turbulenceX = (Math.random() - 0.5) * turbulenceIntensity;
-          const turbulenceY = (Math.random() - 0.5) * turbulenceIntensity;
+        turbulenceCounter = 0;
+        const turbulenceX = (Math.random() - 0.5) * turbulenceIntensity;
+        const turbulenceY = (Math.random() - 0.5) * turbulenceIntensity;
 
-          targetRotationX += turbulenceX;
-          targetRotationY += turbulenceY;
+        targetRotationX += turbulenceX;
+        targetRotationY += turbulenceY;
       }
 
       // Mouse interaction
@@ -236,8 +324,16 @@ flameGeometry.setAttribute('position', new THREE.Float32BufferAttribute(flamePos
       targetRotationY += (desiredRotationY - targetRotationY) * 0.05;
 
       const maxRotation = Math.PI / 8;
-      targetRotationX = THREE.MathUtils.clamp(targetRotationX, -maxRotation, maxRotation);
-      targetRotationY = THREE.MathUtils.clamp(targetRotationY, -maxRotation, maxRotation);
+      targetRotationX = THREE.MathUtils.clamp(
+        targetRotationX,
+        -maxRotation,
+        maxRotation
+      );
+      targetRotationY = THREE.MathUtils.clamp(
+        targetRotationY,
+        -maxRotation,
+        maxRotation
+      );
 
       const rotationSmoothness = 0.05;
       f22.rotation.x += (targetRotationX - f22.rotation.x) * rotationSmoothness;
@@ -266,8 +362,6 @@ flameGeometry.setAttribute('position', new THREE.Float32BufferAttribute(flamePos
     window.removeEventListener("mousemove", () => {});
   });
 });
-
-
 </script>
 
 <template>
@@ -326,7 +420,7 @@ flameGeometry.setAttribute('position', new THREE.Float32BufferAttribute(flamePos
     class="group/card relative flex flex-col max-w-[600px] flex-grow scroll scrollbar pb-32"
   >
     <AboutMe></AboutMe>
-    
+
     <!-- Education -->
     <h2
       class="text-3xl duration-500 hover:!opacity-100 text-white lg:mt-6 mt-10 ml-36 font-bold"
@@ -454,7 +548,6 @@ during our course events."
         <Contact :size="20" />
       </Skill>
     </ActivityCard>
-
 
     <!-- Side Projects -->
     <h2
