@@ -11,7 +11,6 @@
     "type-check": "vue-tsc --build --force"
   },
   "dependencies": {
-    "lucide-vue": "^0.400.0",
     "lucide-vue-next": "^0.400.0",
     "oh-vue-icons": "^1.0.0-rc3",
     "three": "^0.166.1",

@@ -479,7 +479,6 @@ onMounted(() => {
   >
     <AboutMe></AboutMe>
 
-    <!-- Education -->
     <h2
       class="text-3xl duration-500 hover:!opacity-100 text-white lg:mt-6 mt-10 ml-36 font-bold"
     >
@@ -488,39 +487,34 @@ onMounted(() => {
     <hr class="border-t-white/30 my-4 ml-36" />
     <ActivityCard
       title="Master's Degree in Software Engineering"
-      date="2024 — Present"
-      description="I am currently studying <strong>Software Engineering</strong> at the University of Minho, Portugal. I expect to end my master's degree in 2026."
+      date="2024 — 2026"
+      description="I am currently studying <strong>Software Engineering</strong> at the University of Minho. Specializing in <strong>Distributed Systems</strong> and <strong>Intelligent Systems</strong>."
       :last="false"
       role="University of Minho"
     >
+      <Skill skill="Distributed Systems"></Skill>
+      <Skill skill="Edge Computing"></Skill>
       <Skill skill="Go"></Skill>
       <Skill skill="Python"></Skill>
-      <Skill skill="Computer Arquitectures"></Skill>
       <Skill skill="Kubernetes"></Skill>
-      <Skill skill="Networks"></Skill>
-      <Skill skill="Machine Learning"></Skill>
     </ActivityCard>
+    
     <ActivityCard
-      title="Bachlor's Degree in Information Systems"
+      title="Bachelor's Degree in Information Systems"
       date="2021 — 2024"
       description="I studied <strong>Engineering and Management of Information Systems</strong> at the University of Minho, Portugal. 
       <ul class='mt-3'>
-        <li>Grade: 16/20</li>
+        <li>Final Grade: <strong>16/20</strong></li>
       </ul>"
       :last="false"
       role="University of Minho"
     >
       <Skill skill="Java"></Skill>
       <Skill skill="Javascript"></Skill>
-      <Skill skill="CSS"></Skill>
       <Skill skill="Algorithms"></Skill>
-      <Skill skill="Networks"></Skill>
-      <Skill skill="Data Structures"></Skill>
       <Skill skill="Software Engineering"></Skill>
-      <Skill skill="SAP"></Skill>
     </ActivityCard>
 
-    <!-- Professional -->
     <h2
       class="text-3xl duration-500 hover:!opacity-100 text-white lg:mt-6 mt-10 ml-36 font-bold"
     >
@@ -529,9 +523,37 @@ onMounted(() => {
     <hr class="border-t-white/30 my-4 ml-36" />
 
     <ActivityCard
+      title="SMARTEX.ai"
+      date="2025 — Present"
+      description="Conducting applied R&D within the embedded engineering team. Developed a Proof-of-Concept for <strong>on-device model compilation</strong> and engineered a custom backend for the <strong>NVIDIA Triton Inference Server</strong>."
+      :last="false"
+      role="Embedded Software Developer Intern"
+      link="https://smartex.ai/"
+    >
+      <Skill skill="Modern C++ (C++23)"></Skill>
+      <Skill skill="NVIDIA Jetson"></Skill>
+      <Skill skill="TensorRT"></Skill>
+      <Skill skill="ONNX Runtime"></Skill>
+    </ActivityCard>
+
+    <ActivityCard
+      title="INESC TEC"
+      date="JUN — SEP 2025"
+      description="Investigated a <strong>blind spot detection system</strong> for motorcycles using Camera-Radar sensor fusion. Engineered a synthetic data generation pipeline using the <strong>CARLA Simulator</strong>."
+      :last="false"
+      role="Summer Internship"
+      link="https://www.inesctec.pt/"
+    >
+      <Skill skill="Python"></Skill>
+      <Skill skill="Computer Vision"></Skill>
+      <Skill skill="Sensor Fusion"></Skill>
+      <Skill skill="CARLA"></Skill>
+    </ActivityCard>
+
+    <ActivityCard
       title="EPIC Júnior"
       date="2024 — Present"
-      description="EPIC Júnior is a <strong>Junior Enterprise</strong> that provides consulting services to companies and institutions. This challenging role represents a unique opportunity to contribute innovative ideas and drive the development of significant projects within EPIC Júnior, always upholding the quality and excellence of our work."
+      description="Leading the planning and budgeting of innovative ideas and <strong>managing a team of 31 people</strong>. Overseeing the development of <strong>CI/CD pipelines</strong> and implementing best practices using Git/GitHub."
       :last="false"
       role="Director of Innovation of Projects Dept."
       link="https://epicje.pt/"
@@ -553,33 +575,26 @@ onMounted(() => {
     <ActivityCard
       title="EPIC Júnior"
       date="2022 — 2024"
-      description="EPIC Júnior is a <strong>Junior Enterprise</strong> that provides consulting services to companies and institutions. I am a member of the Projects Department, where I have the opportunity to interact with real <strong>clients</strong> and to develop <strong>exciting new projects.</strong>"
+      description="Member of the Projects Department, interacting with real <strong>clients</strong> and developing <strong>exciting new projects.</strong>"
       :last="false"
       role="Member of Projects Dept."
       link="https://epicje.pt/"
     >
-      <Skill skill="Wordpress">
-        <AppWindow :size="20" />
-      </Skill>
       <Skill skill="Node.js">
         <CirclePlay :size="20" />
       </Skill>
       <Skill skill="Redis">
         <DatabaseZap :size="20" />
       </Skill>
-      <Skill skill="Nginx">
-        <Waypoints :size="20" />
-      </Skill>
       <Skill skill="PostgreSQL">
         <Database :size="20" />
       </Skill>
     </ActivityCard>
+
     <ActivityCard
       title="AIS.SC UMINHO"
       date="OCT 2023 — 2024"
-      description="I'm a student core team member at AIS.SC, currently enhancing our website using
-WordPress and PHP to develop some custom plugins. Additionally, I assist companies
-during our course events."
+      description="Student core team member. Enhanced the website using WordPress and PHP to develop custom plugins."
       :last="false"
       role="Member of Technological Dept."
       link="https://aissc.dsi.uminho.pt/"
@@ -587,14 +602,13 @@ during our course events."
       <Skill skill="Wordpress">
         <AppWindow :size="20" />
       </Skill>
-      <Skill skill="Team Work">
-        <Slack :size="20" />
-      </Skill>
+      <Skill skill="PHP"></Skill>
     </ActivityCard>
+
     <ActivityCard
       title="NTT DATA Europe & Latam"
       date="2023 — 2024"
-      description="This experience broadened my network and also provided me with a deeper understanding of the importance of advocacy and community outreach"
+      description="Ambassador role that broadened my network and provided a deeper understanding of community outreach."
       :last="false"
       role="Ambassador"
       link="https://pt.nttdata.com/"
@@ -607,34 +621,81 @@ during our course events."
       </Skill>
     </ActivityCard>
 
-    <!-- Side Projects -->
     <h2
       class="text-3xl duration-500 hover:!opacity-100 text-white lg:mt-6 mt-10 ml-36 font-bold"
     >
-      Projects
+      Selected Projects
     </h2>
     <hr class="border-t-white/30 my-4 ml-36" />
 
-    <!-- <ActivityCard
-      title="App for Managing University Events"
-      date="OCT 2023 — Present"
-      description="I am currently developing an application to <strong>manage events</strong>. I am responsible for <strong>documenting</strong>, <strong>testing</strong> and <strong>developing</strong> the backend of the application. This app is expected to support at least 300 concurrent users and is being made with <strong>EPIC Júnior</strong>."
-      :last=false
+    <ActivityCard
+      title="Video Streaming Platform"
+      date="JAN 2025"
+      description="Designed and implemented a video streaming platform using <strong>Go</strong>. The system handles concurrent streams and optimizes data packet transfer for real-time playback performance."
+      :last="false"
+      role="Systems Engineer"
+      link="https://github.com/rodrigo0345/esr-tp2"
+    >
+      <Skill skill="Go"></Skill>
+      <Skill skill="Networking"></Skill>
+      <Skill skill="Streaming Protocols"></Skill>
+    </ActivityCard>
+
+    <ActivityCard
+      title="VS Code DB Manager"
+      date="Open Source"
+      description="Contributed to the <strong>vscode-db-manager</strong> extension by implementing the <strong>SQLite</strong> driver. This feature allows users to connect to, query, and manage SQLite databases directly within VS Code. This project is meant to be a free alternative to already existing extensions."
+      :last="false"
+      role="Contributor"
+      link="https://github.com/martimmpr/vscode-db-manager"
+    >
+      <Skill skill="TypeScript"></Skill>
+      <Skill skill="SQLite"></Skill>
+      <Skill skill="VS Code API"></Skill>
+    </ActivityCard>
+
+    <ActivityCard
+      title="Raft Consensus - Fault Tolerance"
+      date="APR — MAY 2025"
+      description="Developed an implementation of the <strong>Raft consensus algorithm</strong> using the Maelstrom testing framework and <strong>Go</strong>. Analyzed resilience to Byzantine faults."
+      :last="false"
+      role="Systems Engineer"
+      link="https://github.com/rodrigo0345/RaftSimple"
+    >
+      <Skill skill="Golang"></Skill>
+      <Skill skill="Distributed Systems"></Skill>
+      <Skill skill="Maelstrom"></Skill>
+    </ActivityCard>
+
+    <ActivityCard
+      title="Smart Clinic"
+      date="NOV 2024 — MAY 2025"
+      description="Developed a virtual consultation platform using <strong>Strapi</strong> and <strong>Jitsi</strong>. Integrated seamless payments with IfThenPay to improve clinic accessibility."
+      :last="false"
+      role="Fullstack Developer"
+    >
+      <Skill skill="Strapi"></Skill>
+      <Skill skill="Jitsi"></Skill>
+      <Skill skill="React"></Skill>
+      <Skill skill="IfThenPay"></Skill>
+    </ActivityCard>
+
+    <ActivityCard
+      title="KeyBelle"
+      date="OCT 2024 — APR 2025"
+      description="Built a property key management system using <strong>.NET 8</strong> and <strong>PostgreSQL</strong> for a real estate agency. Improved operational efficiency and reduced key misplacement."
+      :last="false"
       role="Backend Developer"
     >
-      <Skill skill="Node.js"></Skill>
-      <Skill skill="Typescript"></Skill>
-      <Skill skill="Redis"></Skill>
-      <Skill skill="Queues"></Skill>
-      <Skill skill="PWA"></Skill>
-      <Skill skill="Unit Testing"></Skill>
-    </ActivityCard> -->
+      <Skill skill=".NET 8"></Skill>
+      <Skill skill="C#"></Skill>
+      <Skill skill="PostgreSQL"></Skill>
+    </ActivityCard>
 
-    <!-- START POINT -->
     <ActivityCard
       title="START POINT's Website"
-      date="SET — DEC 2023"
-      description="I was the <strong>Project Manager</strong> of this project. This website required some custom plugins to handle student verification and a custom theme to match the company's branding."
+      date="SEP — DEC 2023"
+      description="I was the <strong>Project Manager</strong> of this project. Required custom plugins to handle student verification and a custom theme to match branding."
       :last="false"
       role="Wordpress Developer"
       link="https://startpoint.pt/"
@@ -647,18 +708,16 @@ during our course events."
     <ActivityCard
       title="Volleyball Management App"
       date="MAY — JUN 2023"
-      description="I was responsible for developing a straightforward MVC system using Java and MySQL to manage players, matches, and training for the volleyball team. This project was undertaken as part of my university course, and it involved collaboration with a team of 11 people. I successfully completed this course with the highest grade in the class, achieving a score of 18/20."
+      description="Developed a MVC system using Java and MySQL to manage players and matches. Achieved the highest grade in the class (18/20)."
       :last="false"
       role="Fullstack Developer"
       link="https://github.com/rodrigo0345/DAI-Projeto-Volley"
     >
       <Skill skill="Java"></Skill>
       <Skill skill="Typescript"></Skill>
-      <Skill skill="Hilla"></Skill>
       <Skill skill="React"></Skill>
     </ActivityCard>
 
-    <!-- Certifications -->
     <h2
       class="text-3xl duration-500 hover:!opacity-100 text-white lg:mt-6 mt-10 ml-36 font-bold"
     >
@@ -667,13 +726,27 @@ during our course events."
     <hr class="border-t-white/30 my-4 ml-36" />
 
     <ActivityCard
+      title="C++ Essentials 1"
+      date="DEC 2025"
+      description="Professional certification covering the fundamental concepts of the <strong>C++ language</strong>, including data types, memory management, pointers, and object-oriented programming."
+      :last="false"
+      role="Cisco Networking Academy"
+      link="https://www.credly.com/badges/1c36ab10-d486-4f9d-b455-9d0668ea622f/linked_in_profile"
+    >
+      <Skill skill="C++"></Skill>
+      <Skill skill="Memory Management"></Skill>
+      <Skill skill="OOP"></Skill>
+    </ActivityCard>
+
+    <ActivityCard
       title="3D Graphics Programming from Scratch"
       date="JUL 2024"
-      description="I took this course out of genuine curiosity and I found it to be one of the most interesting courses I have ever taken. I learned a lot about <strong>3D graphics</strong> and how to create <strong>3D models</strong> from scratch. I learned concepts as backface culling, z-buffering, simple shading technics, etc..."
+      description="Deep dive into 3D graphics concepts like backface culling, z-buffering, and shading techniques."
       :last="false"
       role="pikuma.com"
       link="https://courses.pikuma.com/certificates/4gjmahqcda"
     >
+      <Skill skill="C++"></Skill>
       <Skill skill="Graphics"></Skill>
       <Skill skill="Math"></Skill>
     </ActivityCard>
@@ -681,7 +754,7 @@ during our course events."
     <ActivityCard
       title="Foundational C#"
       date="JAN 2024"
-      description="I am focused on learning <strong>.NET</strong> and <strong>C#</strong> and this certification helped me <strong>getting started</strong> with the language."
+      description="Certification helping me get started with <strong>.NET</strong> and <strong>C#</strong>."
       :last="false"
       role="FreeCodeCamp"
       link="https://www.freecodecamp.org/certification/fcc14e961b3-4818-4ae8-8255-d8cc731041f7/foundational-c-sharp-with-microsoft"
@@ -693,7 +766,7 @@ during our course events."
     <ActivityCard
       title="Cypher Fundamentals"
       date="MAY 2023"
-      description="This was a very practical course on how to use <strong>Cypher</strong> to query and manipulate data in <strong>Neo4J</strong>. I learned a lot about <strong>graph databases</strong> and ended up having a really good grade on one my courses that required Neo4J knowledge."
+      description="Practical course on how to use <strong>Cypher</strong> to query and manipulate data in <strong>Neo4J</strong>."
       :last="false"
       role="Neo4J Graph Academy"
       link="https://graphacademy.neo4j.com/c/3aa65d3e-b8b8-4c9e-af48-63ed4b38c2bd/"
@@ -705,7 +778,7 @@ during our course events."
     <ActivityCard
       title="Javascript Algorithms"
       date="JUN 2023"
-      description="This course was an amazing first step into understanding dip down how Javascript works and how to use it to solve problems."
+      description="Course on understanding how Javascript works and how to use it to solve problems."
       :last="false"
       role="FreeCodeCamp"
       link="https://www.freecodecamp.org/certification/fcc14e961b3-4818-4ae8-8255-d8cc731041f7/javascript-algorithms-and-data-structures"
