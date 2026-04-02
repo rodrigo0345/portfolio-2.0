@@ -553,7 +553,7 @@ onMounted(() => {
     <ActivityCard
       title="EPIC Júnior"
       date="2024 — Present"
-      description="Leading the planning and budgeting of innovative ideas and <strong>managing a team of 31 people</strong>. Overseeing the development of <strong>CI/CD pipelines</strong> and implementing best practices using Git/GitHub."
+      description="Leading the planning and budgeting of innovative projects and <strong>managing a team of 31 people</strong>. Overseeing the development of <strong>CI/CD pipelines</strong> and implementing best practices using Git/GitHub."
       :last="false"
       role="Director of Innovation of Projects Dept."
       link="https://epicje.pt/"
@@ -575,7 +575,7 @@ onMounted(() => {
     <ActivityCard
       title="EPIC Júnior"
       date="2022 — 2024"
-      description="Member of the Projects Department, interacting with real <strong>clients</strong> and developing <strong>exciting new projects.</strong>"
+      description="Member of the Projects Department, interacting with real <strong>clients</strong> and developing <strong>exciting new projects.</strong> I delivered projects heavily focused on logistics management, appointment scheduling systems, and event gamification applications."
       :last="false"
       role="Member of Projects Dept."
       link="https://epicje.pt/"
