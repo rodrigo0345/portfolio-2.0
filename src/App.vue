@@ -629,6 +629,21 @@ onMounted(() => {
     <hr class="border-t-white/30 my-4 ml-36" />
 
     <ActivityCard
+      title="InesDB - Indexed Node Engine Storage"
+      date="MAR 2026"
+      description="InesDB is a high-performance database engine built in <strong>Go</strong> using a composable component based architecture. It is designed for efficient data writes and retrievel using LSM Trees, using a novel paper strategy called Autumn for better read performance, making it ideal for applications requiring fast access to large datasets. It also supports replication using Raft consensus and provides a simple subset of SQL-like query language for data manipulation. This is a project under active development."
+      :last="false"
+      role="Lead Developer"
+      link="https://github.com/rodrigo0345/inesdb"
+    >
+      <Skill skill="Go"></Skill>
+      <Skill skill="Distributed Systems"></Skill>
+      <Skill skill="SQL"></Skill>
+      <Skill skill="Maelstrom"></Skill>
+    </ActivityCard>
+    
+
+    <ActivityCard
       title="Video Streaming Platform"
       date="JAN 2025"
       description="Designed and implemented a video streaming platform using <strong>Go</strong>. The system handles concurrent streams and optimizes data packet transfer for real-time playback performance."
@@ -665,6 +680,30 @@ onMounted(() => {
       <Skill skill="Golang"></Skill>
       <Skill skill="Distributed Systems"></Skill>
       <Skill skill="Maelstrom"></Skill>
+    </ActivityCard>
+
+    <ActivityCard
+      title="Picturas - Microservice SaaS Platform"
+      date="SEP 2024 — JAN 2025"
+      description="Scalable SaaS for image manipulation using a <strong>microservices architecture</strong>. Implemented an asynchronous processing pipeline with <strong>RabbitMQ</strong> for orchestration and <strong>Redis</strong> for real-time WebSocket scaling. Engineered the infrastructure using <strong>Docker</strong>, <strong>Kubernetes (Helm)</strong>, and <strong>Terraform</strong>."
+      :last="false"
+      role="Backend Engineer"
+      link="https://github.com/rafapeixoto16/RAS"
+    >
+      <Skill skill="Node.js"></Skill>
+      <Skill skill="RabbitMQ">
+        <Workflow :size="20" />
+      </Skill>
+      <Skill skill="Redis">
+        <DatabaseZap :size="20" />
+      </Skill>
+      <Skill skill="Kubernetes">
+        <Container :size="20" />
+      </Skill>
+      <Skill skill="Terraform"></Skill>
+      <Skill skill="MongoDB">
+        <Database :size="20" />
+      </Skill>
     </ActivityCard>
 
     <ActivityCard

@@ -6,7 +6,7 @@ rm -rf dist
 npm run build
 cd dist
 
-echo 'rodrigocasanova.me' > CNAME
+echo 'rodrigocasanova.space' > CNAME
 git init
 git add -A
 git commit -m 'deploy'
