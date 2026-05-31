@@ -563,11 +563,13 @@ function buildScene(container: HTMLElement) {
 
     const expMat = new THREE.PointsMaterial({
         vertexColors: true,
-        size: 3.5,
+        size: 0.6,
         transparent: true,
         opacity: 1.0,
         depthWrite: false,
         blending: THREE.AdditiveBlending,
+        sizeAttenuation: true,
+        fog: true,
         map: pTex,
     });
     const explosions = new THREE.Points(expGeo, expMat);
@@ -580,7 +582,7 @@ function buildScene(container: HTMLElement) {
         hitPoint: THREE.Vector3,
         type: "dirt" | "water" | "air",
     ) {
-        const particlesPerHit = 35;
+        const particlesPerHit = 25;
         for (let i = 0; i < particlesPerHit; i++) {
             const idx = nextExpIdx;
             nextExpIdx = (nextExpIdx + 1) % N_EXP_PARTS;
@@ -589,12 +591,12 @@ function buildScene(container: HTMLElement) {
             expPos[idx * 3 + 1] = hitPoint.y;
             expPos[idx * 3 + 2] = hitPoint.z;
 
-            let speed = 4.0 + Math.random() * 12.0;
+            let speed = 2.0 + Math.random() * 5.0;
             const angle = Math.random() * Math.PI * 2;
             let elevation = Math.random() * Math.PI * 0.5;
 
             if (type === "water") {
-                speed = 4.0 + Math.random() * 8.0;
+                speed = 2.0 + Math.random() * 4.0;
                 elevation = Math.PI * 0.3 + Math.random() * Math.PI * 0.2;
 
                 expBaseCol[idx * 3] = 0.2 + Math.random() * 0.3;
@@ -605,7 +607,7 @@ function buildScene(container: HTMLElement) {
                 expBaseCol[idx * 3 + 1] = 0.6 + Math.random() * 0.4;
                 expBaseCol[idx * 3 + 2] = 0.1;
             } else {
-                speed = 8.0 + Math.random() * 15.0;
+                speed = 3.0 + Math.random() * 7.0;
                 elevation = (Math.random() - 0.5) * Math.PI;
 
                 expBaseCol[idx * 3] = 1.0;
@@ -660,15 +662,17 @@ function buildScene(container: HTMLElement) {
     flameGeo.setAttribute("color", new THREE.BufferAttribute(fCol, 3));
     const flameMat = new THREE.PointsMaterial({
         vertexColors: true,
-        size: 1.5,
+        size: 0.5,
         transparent: true,
         opacity: 0.9,
         depthWrite: false,
+        depthTest: false,
         blending: THREE.AdditiveBlending,
         map: pTex,
     });
     const flames = new THREE.Points(flameGeo, flameMat);
     flames.frustumCulled = false;
+    flames.renderOrder = 999;
     scene.add(flames);
 
     function spawnFlameParticle(i: number) {
@@ -725,7 +729,7 @@ function buildScene(container: HTMLElement) {
 
     // ── Weapons System ────────────────────────────────────────────────────────
     const MAX_BULLETS = 100;
-    const bulletGeo = new THREE.CylinderGeometry(0.15, 0.15, 8, 8);
+    const bulletGeo = new THREE.CylinderGeometry(0.04, 0.04, 2, 6);
     bulletGeo.rotateX(Math.PI / 2);
     const bulletMat = new THREE.MeshBasicMaterial({ color: 0xff9900 });
     const bulletMesh = new THREE.InstancedMesh(
@@ -1080,6 +1084,9 @@ function buildScene(container: HTMLElement) {
         stepClouds(planeGroup.position.x, planeGroup.position.z);
         stepEnemies(dt);
 
+        stepExplosions(dt);
+        stepFlames(dt);
+
         const isRearView = keys["c"];
 
         if (isShooting && fireTimer <= 0) {
@@ -1136,7 +1143,7 @@ function buildScene(container: HTMLElement) {
         camera.fov = lerp(camera.fov, targetFov, dt * 4);
         camera.updateProjectionMatrix();
 
-        flameMat.size = 1.0 + (boostActive ? 1.0 : throttle) * 0.8;
+        flameMat.size = 0.2 + (boostActive ? 0.2 : throttle * 0.1);
 
         hudSpeed.value = Math.round(speed * 22);
         hudThrottle.value = Math.round(throttle * 100);

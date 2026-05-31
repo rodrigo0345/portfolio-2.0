@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, watch } from "vue";
+import { ref, onMounted, onBeforeUnmount } from "vue";
 import * as THREE from "three";
 import { OBJLoader } from "three/addons/loaders/OBJLoader.js";
 
@@ -37,17 +37,17 @@ onMounted(() => {
     window.addEventListener("resize", onResize);
 
     // ── Lighting ───────────────────────────────────────────────────────────────
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.4);
     dirLight.position.set(5, 5, 5);
     scene.add(dirLight);
-    scene.add(new THREE.AmbientLight(0xffffff, 0.4));
-    const goldLight = new THREE.PointLight(0xefcb68, 0.7, 8);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.2));
+    const goldLight = new THREE.PointLight(0xefcb68, 0.4, 8);
     goldLight.position.set(-2, 1, 2);
     scene.add(goldLight);
 
     // ── Grid floor ─────────────────────────────────────────────────────────────
-    const grid = new THREE.GridHelper(4, 10, 0xefcb68, 0xefcb68);
-    (grid.material as THREE.LineBasicMaterial).opacity = 0.08;
+    const grid = new THREE.GridHelper(4, 6, 0xefcb68, 0xefcb68);
+    (grid.material as THREE.LineBasicMaterial).opacity = 0.02;
     (grid.material as THREE.LineBasicMaterial).transparent = true;
     grid.position.y = -0.8;
     scene.add(grid);
@@ -55,22 +55,25 @@ onMounted(() => {
     // ── Radar pulse rings ──────────────────────────────────────────────────────
     const rings: THREE.Mesh[] = [];
     const ringTimers: number[] = [];
-    for (let i = 0; i < 3; i++) {
+    const PULSE_DURATION = 6.0;
+    const MAX_RADIUS = 4.0;
+
+    for (let i = 0; i < 2; i++) {
         const mat = new THREE.MeshBasicMaterial({
             color: 0xefcb68,
             transparent: true,
             opacity: 0,
             side: THREE.DoubleSide,
+            depthWrite: false,
         });
-        const ring = new THREE.Mesh(
-            new THREE.RingGeometry(0.01, 0.04, 64),
-            mat,
-        );
+
+        const ring = new THREE.Mesh(new THREE.RingGeometry(0.98, 1.0, 64), mat);
         ring.rotation.x = -Math.PI / 2;
         ring.position.y = -0.79;
         scene.add(ring);
         rings.push(ring);
-        ringTimers.push(i * 1.5);
+
+        ringTimers.push(i * (PULSE_DURATION / 2));
     }
 
     // ── F22 model ──────────────────────────────────────────────────────────────
@@ -108,7 +111,6 @@ onMounted(() => {
     window.addEventListener("keydown", onKeyDown);
 
     // ── Animation ──────────────────────────────────────────────────────────────
-    let turbCounter = 0;
     let prev = performance.now();
 
     const loop = () => {
@@ -120,30 +122,29 @@ onMounted(() => {
         // Radar rings
         for (let i = 0; i < rings.length; i++) {
             ringTimers[i] += dt;
-            const t = (ringTimers[i] % 2.5) / 2.5;
-            rings[i].scale.set(0.5 + t * 5, 0.5 + t * 5, 1);
+            const t = (ringTimers[i] % PULSE_DURATION) / PULSE_DURATION;
+
+            const s = Math.max(0.001, t * MAX_RADIUS);
+            rings[i].scale.set(s, s, 1);
+
+            const maxOpacity = 0.2;
             (rings[i].material as THREE.MeshBasicMaterial).opacity =
-                t < 0.3 ? (t / 0.3) * 0.3 : ((1 - t) / 0.7) * 0.3;
+                t < 0.1 ? (t / 0.1) * maxOpacity : ((1 - t) / 0.9) * maxOpacity;
         }
 
         if (f22) {
-            turbCounter++;
-            if (turbCounter >= 100) {
-                turbCounter = 0;
-                targetRX += (Math.random() - 0.5) * 0.05;
-                targetRY += (Math.random() - 0.5) * 0.05;
-            }
-            const inf = 1.2;
-            targetRX += (mouseY * inf - targetRX) * 0.05;
-            targetRY += (mouseX * inf - targetRY) * 0.05;
-            const m = Math.PI / 8;
+            const inf = 0.8;
+            targetRX += (mouseY * inf - targetRX) * 0.02;
+            targetRY += (mouseX * inf - targetRY) * 0.02;
+            const m = Math.PI / 12;
             targetRX = THREE.MathUtils.clamp(targetRX, -m, m);
             targetRY = THREE.MathUtils.clamp(targetRY, -m, m);
-            f22.rotation.x += (targetRX - f22.rotation.x) * 0.05;
-            f22.rotation.y += (targetRY - f22.rotation.y) * 0.05;
+
+            f22.rotation.x += (targetRX - f22.rotation.x) * 0.02;
+            f22.rotation.y += (targetRY - f22.rotation.y) * 0.02;
 
             const offset = new THREE.Vector3(0, 1.5, 1.5);
-            camera.position.lerp(f22.position.clone().add(offset), 0.1);
+            camera.position.lerp(f22.position.clone().add(offset), 0.03);
             camera.lookAt(f22.position);
         }
 
