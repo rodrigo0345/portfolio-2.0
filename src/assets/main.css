@@ -3,27 +3,45 @@
 @tailwind components;
 @tailwind utilities;
 
-
 #app {
   max-width: 1500px;
   width: 100%;
   position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
   font-weight: normal;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
 }
 
-a,
-.green {
+a {
   text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
+  color: inherit;
   transition: 0.4s;
-  padding: 3px;
 }
 
+strong {
+  font-weight: 600;
+  color: #E1EFE6;
+}
+
+/* Two-column top zone */
+#top-zone {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Full-width bottom zone (projects + certs) */
+#bottom-zone {
+  width: 100%;
+  padding: 4rem 2rem 6rem;
+}
+
+/* Section grid for projects/certs */
+.grid-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: 1rem;
+}
 
 @media (min-width: 1024px) {
   body {
@@ -32,12 +50,23 @@ a,
   }
 
   #app {
+    flex-direction: column;
+  }
+
+  /* Top zone: two-column side by side */
+  #top-zone {
     display: grid;
     grid-template-columns: 1fr 1fr;
+    width: 100%;
   }
-}
 
-strong {
-  font-weight: bold;
-  color: rgba(240, 248, 255, 0.858);
+  /* Bottom zone: full-width, max-width centered */
+  #bottom-zone {
+    padding: 5rem 4rem 7rem;
+  }
+
+  .grid-section {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.1rem;
+  }
 }

@@ -1,41 +1,103 @@
 <script setup lang="ts">
-const props = defineProps<{
-    title: string
-    description: string
-    date: string
-    role: string
-    last?: boolean
-    link?: string
+defineProps<{
+  title: string
+  description: string
+  date: string
+  role: string
+  last?: boolean
+  link?: string
 }>()
 </script>
 
 <template>
-<div tabindex="1" class="group bg-transparent flex relative transition-all duration-500 rounded-md pl-4 lg:hover:shadow-[inset_0_1px_0_0_rgba(148,163,184,0.1)] lg:hover:drop-shadow-lg lg:hover:bg-slate-800/50 hover:!opacity-100 lg:group-hover/card:opacity-50 group-focus/card:opacity-50 md:flex-row flex-col md:gap-0 gap-5">
-    <p class="text-xs pt-7 font-medium md:w-[105px] uppercase md:pl-0 pl-5">{{ date }}</p>
-    <div :class="{ 'border-l-2': last, 'p-0': true, 'pl-5': true, 'flex-1': true, 'pr-5': true, 'relative': true }">
-        <!--Actual content-->
-        <div class="flex flex-col items-start rounded-md mb-2 md:p-6 p-0 ease-in-out duration-300 transition-all">
-            <a :href="link" target="_blank" class="flex items-center gap-2 p-0">
-                <h2 class="text-xl duration-150 group-hover:text-slate-100/80 font-semibold text-white tracking-wide">{{ title }}</h2>
-                    <svg v-if="link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="group-hover:translate-x-1 group-hover:-translate-y-1  inline-block h-4 w-4 shrink-0 transition-transform group-hover/link:-translate-y-1 group-hover/link:translate-x-1 group-focus-visible/link:-translate-y-1 group-focus-visible/link:translate-x-1 motion-reduce:transition-none ml-1 translate-y-px" aria-hidden="true"><path fill-rule="evenodd" d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z" clip-rule="evenodd"></path>
-                    </svg>
-                
-            </a>
-            <h3 class="text-base tracking-tight before:'-'">{{ role }}</h3>
-            <p class="text-sm text-white/70 my-2 font-light" v-html="description"></p>
-            <div class="flex items-start justify-start gap-3 flex-wrap mt-4">
-                <slot></slot>
-            </div>
-        </div>
+  <div
+    tabindex="0"
+    class="activity-card group relative flex md:flex-row flex-col md:gap-0 gap-4 rounded-lg px-4 py-5 transition-all duration-300 hover:!opacity-100 lg:group-hover/card:opacity-40"
+  >
+    <p class="date-label text-xs pt-1 md:w-[105px] shrink-0 uppercase tracking-widest">{{ date }}</p>
+
+    <div class="flex-1 pl-1 pr-2">
+      <a :href="link" :target="link ? '_blank' : undefined" class="inline-flex items-center gap-2 group/link mb-1">
+        <h2 class="card-title text-base font-semibold tracking-tight leading-snug">{{ title }}</h2>
+        <svg
+          v-if="link"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+          class="link-arrow h-3.5 w-3.5 shrink-0 transition-transform duration-200 group-hover/link:-translate-y-0.5 group-hover/link:translate-x-0.5"
+          aria-hidden="true"
+        >
+          <path fill-rule="evenodd" d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z" clip-rule="evenodd"/>
+        </svg>
+      </a>
+      <p class="role-label text-xs mb-3 tracking-wide font-mono">{{ role }}</p>
+      <p class="description-text text-sm leading-relaxed font-light" v-html="description"></p>
+      <div class="flex flex-wrap gap-2 mt-4">
+        <slot></slot>
+      </div>
     </div>
-</div>
+
+    <!-- gold left-border accent on hover -->
+    <span class="accent-bar"></span>
+  </div>
 </template>
 
 <style scoped>
-.shadow-on-hover:hover {
-    box-shadow: 5px 5px 0px 0px #38bff897;
+.activity-card {
+  position: relative;
+  overflow: hidden;
 }
-.shadow-on-hover:focus {
-    box-shadow: 5px 5px 0px 3px #38bdf8;
+
+.activity-card:hover {
+  background: rgba(22, 12, 40, 0.6);
+}
+
+.accent-bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #EFCB68;
+  opacity: 0;
+  border-radius: 0 2px 2px 0;
+  transition: opacity 0.25s ease;
+}
+
+.activity-card:hover .accent-bar {
+  opacity: 1;
+}
+
+.date-label {
+  color: #AEB7B3;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.card-title {
+  color: #E1EFE6;
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  transition: color 0.2s;
+}
+
+.activity-card:hover .card-title {
+  color: #EFCB68;
+}
+
+.link-arrow {
+  color: #AEB7B3;
+  transition: color 0.2s;
+}
+
+.activity-card:hover .link-arrow {
+  color: #EFCB68;
+}
+
+.role-label {
+  color: #AEB7B3;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.description-text {
+  color: #AEB7B3;
 }
 </style>

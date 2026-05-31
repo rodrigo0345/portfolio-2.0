@@ -1,18 +1,24 @@
 <script setup lang="ts">
-const props = defineProps<{
-  skill: string;
-}>();
+defineProps<{ skill: string }>()
 </script>
 
 <template>
-  <div
-    class="px-2 py-1 bg-gradient-to-br from-sky-800/60 to-sky-900/80 rounded-xl flex items-center justify-center"
-  >
-    <p
-      class="flex items-center gap-1 text-sky-300 text-sm font-semibold m-0 px-1 min-h-0"
-    >
-      <slot></slot>
-      {{ skill }}
-    </p>
-  </div>
+  <span class="skill-badge inline-flex items-center gap-1.5 px-2.5 py-1 rounded font-mono text-xs font-medium tracking-wide">
+    <slot></slot>
+    {{ skill }}
+  </span>
 </template>
+
+<style scoped>
+.skill-badge {
+  background: rgba(239, 203, 104, 0.07);
+  border: 1px solid rgba(239, 203, 104, 0.22);
+  color: #EFCB68;
+  font-family: 'JetBrains Mono', monospace;
+  transition: background 0.2s, border-color 0.2s;
+}
+.skill-badge:hover {
+  background: rgba(239, 203, 104, 0.14);
+  border-color: rgba(239, 203, 104, 0.4);
+}
+</style>

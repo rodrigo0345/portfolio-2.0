@@ -1,0 +1,180 @@
+<script setup lang="ts">
+import { ref, onMounted, onBeforeUnmount, watch } from "vue";
+import * as THREE from "three";
+import { OBJLoader } from "three/addons/loaders/OBJLoader.js";
+
+const props = defineProps<{ paused?: boolean }>();
+const emit = defineEmits<{ enterGame: [rect: DOMRect] }>();
+const containerRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+    const el = containerRef.value!;
+    let raf: number;
+    let renderer: THREE.WebGLRenderer | null = null;
+    let f22: THREE.Object3D | null = null;
+
+    // ── Scene ──────────────────────────────────────────────────────────────────
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(
+        60,
+        el.clientWidth / el.clientHeight,
+        0.1,
+        1000,
+    );
+    camera.position.z = 3;
+
+    renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setClearAlpha(0);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(el.clientWidth, el.clientHeight);
+    el.appendChild(renderer.domElement);
+
+    const onResize = () => {
+        camera.aspect = el.clientWidth / el.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer!.setSize(el.clientWidth, el.clientHeight);
+    };
+    window.addEventListener("resize", onResize);
+
+    // ── Lighting ───────────────────────────────────────────────────────────────
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+    dirLight.position.set(5, 5, 5);
+    scene.add(dirLight);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+    const goldLight = new THREE.PointLight(0xefcb68, 0.7, 8);
+    goldLight.position.set(-2, 1, 2);
+    scene.add(goldLight);
+
+    // ── Grid floor ─────────────────────────────────────────────────────────────
+    const grid = new THREE.GridHelper(4, 10, 0xefcb68, 0xefcb68);
+    (grid.material as THREE.LineBasicMaterial).opacity = 0.08;
+    (grid.material as THREE.LineBasicMaterial).transparent = true;
+    grid.position.y = -0.8;
+    scene.add(grid);
+
+    // ── Radar pulse rings ──────────────────────────────────────────────────────
+    const rings: THREE.Mesh[] = [];
+    const ringTimers: number[] = [];
+    for (let i = 0; i < 3; i++) {
+        const mat = new THREE.MeshBasicMaterial({
+            color: 0xefcb68,
+            transparent: true,
+            opacity: 0,
+            side: THREE.DoubleSide,
+        });
+        const ring = new THREE.Mesh(
+            new THREE.RingGeometry(0.01, 0.04, 64),
+            mat,
+        );
+        ring.rotation.x = -Math.PI / 2;
+        ring.position.y = -0.79;
+        scene.add(ring);
+        rings.push(ring);
+        ringTimers.push(i * 1.5);
+    }
+
+    // ── F22 model ──────────────────────────────────────────────────────────────
+    const planeTexture = new THREE.TextureLoader().load("f22.png");
+    new OBJLoader().load("f22.obj", (obj) => {
+        obj.traverse((c) => {
+            if (c instanceof THREE.Mesh)
+                c.material = new THREE.MeshStandardMaterial({
+                    map: planeTexture,
+                });
+        });
+        obj.scale.set(0.4, 0.4, 0.4);
+        scene.add(obj);
+        f22 = obj;
+    });
+
+    // ── Mouse tracking ─────────────────────────────────────────────────────────
+    let mouseX = 0,
+        mouseY = 0;
+    let targetRX = 0,
+        targetRY = 0;
+    const onMouseMove = (e: MouseEvent) => {
+        mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+        mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+    };
+    window.addEventListener("mousemove", onMouseMove);
+
+    // ── W key → enter game ─────────────────────────────────────────────────────
+    const onKeyDown = (e: KeyboardEvent) => {
+        if ((e.key === "w" || e.key === "W") && !props.paused) {
+            const rect = containerRef.value?.getBoundingClientRect();
+            if (rect) emit("enterGame", rect);
+        }
+    };
+    window.addEventListener("keydown", onKeyDown);
+
+    // ── Animation ──────────────────────────────────────────────────────────────
+    let turbCounter = 0;
+    let prev = performance.now();
+
+    const loop = () => {
+        raf = requestAnimationFrame(loop);
+        const now = performance.now();
+        const dt = Math.min((now - prev) / 1000, 0.05);
+        prev = now;
+
+        // Radar rings
+        for (let i = 0; i < rings.length; i++) {
+            ringTimers[i] += dt;
+            const t = (ringTimers[i] % 2.5) / 2.5;
+            rings[i].scale.set(0.5 + t * 5, 0.5 + t * 5, 1);
+            (rings[i].material as THREE.MeshBasicMaterial).opacity =
+                t < 0.3 ? (t / 0.3) * 0.3 : ((1 - t) / 0.7) * 0.3;
+        }
+
+        if (f22) {
+            turbCounter++;
+            if (turbCounter >= 100) {
+                turbCounter = 0;
+                targetRX += (Math.random() - 0.5) * 0.05;
+                targetRY += (Math.random() - 0.5) * 0.05;
+            }
+            const inf = 1.2;
+            targetRX += (mouseY * inf - targetRX) * 0.05;
+            targetRY += (mouseX * inf - targetRY) * 0.05;
+            const m = Math.PI / 8;
+            targetRX = THREE.MathUtils.clamp(targetRX, -m, m);
+            targetRY = THREE.MathUtils.clamp(targetRY, -m, m);
+            f22.rotation.x += (targetRX - f22.rotation.x) * 0.05;
+            f22.rotation.y += (targetRY - f22.rotation.y) * 0.05;
+
+            const offset = new THREE.Vector3(0, 1.5, 1.5);
+            camera.position.lerp(f22.position.clone().add(offset), 0.1);
+            camera.lookAt(f22.position);
+        }
+
+        renderer!.render(scene, camera);
+    };
+    loop();
+    (el as any).__cleanup = () => {
+        cancelAnimationFrame(raf);
+        window.removeEventListener("resize", onResize);
+        window.removeEventListener("mousemove", onMouseMove);
+        window.removeEventListener("keydown", onKeyDown);
+        renderer?.dispose();
+        renderer?.domElement.remove();
+        renderer = null;
+        scene.clear();
+    };
+});
+
+onBeforeUnmount(() => {
+    (containerRef.value as any)?.__cleanup?.();
+});
+</script>
+
+<template>
+    <div ref="containerRef" class="showcase-canvas" />
+</template>
+
+<style scoped>
+.showcase-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+</style>
