@@ -23,34 +23,40 @@ export interface DiagramData {
   title: string
 }
 
-// ─── InesDB ─────────────────────────────────────────────────────────────────
-// Actual repo: github.com/rodrigo0345/inesdb
-// Layered DB engine: pgserver → sqlparser → txn+concurrency → storage{LSM,B+tree} + WAL
-const inesdb: DiagramData = {
-  title: 'InesDB Architecture',
+// ─── Multigraft ───────────────────────────────────────────────────────────────
+// Actual repo: codeberg.org/Multigraft/core
+// Zig, single binary: pgserver → sqlparser+engine → mvcc → storage{LSM,B+Tree,Vector/HNSW} + WAL
+// Raft (also Zig, same binary) replicates via named shards in a region-aware Shard Registry
+const multigraft: DiagramData = {
+  title: 'Multigraft Architecture',
   nodes: [
-    { id: 'client',      label: 'Client',        type: 'client',  x: 0,    y: 2.5,  z: 0,    sublabel: 'psql / CLI / bench' },
-    { id: 'pgserver',    label: 'pg server',      type: 'gateway', x: 0,    y: 1.4,  z: 0,    sublabel: 'PostgreSQL wire protocol' },
-    { id: 'sqlparser',   label: 'SQL Parser',     type: 'service', x: -1.4, y: 0.3,  z: 0,    sublabel: 'query interpretation' },
-    { id: 'txn',         label: 'Txn Manager',    type: 'service', x: 0,    y: 0.3,  z: 0,    sublabel: 'ACID, isolation levels' },
-    { id: 'concurrency', label: 'Concurrency',    type: 'service', x: 1.4,  y: 0.3,  z: 0,    sublabel: 'MVCC · OCC · 2PL' },
-    { id: 'lsm',         label: 'LSM Tree',       type: 'storage', x: -1.0, y: -0.9, z: 0,    sublabel: 'MemTable + SSTable' },
-    { id: 'btree',       label: 'B+ Tree',        type: 'storage', x: 0.8,  y: -0.9, z: 0,    sublabel: 'pluggable backend' },
-    { id: 'wal',         label: 'WAL',            type: 'storage', x: 2.2,  y: -0.9, z: 0,    sublabel: 'durability log' },
-    { id: 'bench',       label: 'Maelstrom',      type: 'infra',   x: -2.5, y: 1.4,  z: 0,    sublabel: 'distributed test' },
+    { id: 'client',    label: 'Client',         type: 'client',  x: 0,    y: 2.6,  z: 0,    sublabel: 'psql / pg driver' },
+    { id: 'pgserver',  label: 'PSQL Server',    type: 'gateway', x: 0,    y: 1.5,  z: 0,    sublabel: 'Postgres wire protocol · :5433' },
+    { id: 'sqlparser', label: 'SQL Parser',     type: 'service', x: -1.6, y: 0.4,  z: 0,    sublabel: 'lex · parse · AST' },
+    { id: 'engine',    label: 'Engine',         type: 'service', x: 0,    y: 0.4,  z: 0,    sublabel: 'open/read/write/scan facade' },
+    { id: 'mvcc',      label: 'MVCC Manager',   type: 'service', x: 1.6,  y: 0.4,  z: 0,    sublabel: 'txn lifecycle · isolation' },
+    { id: 'lsm',       label: 'LSM Engine',     type: 'storage', x: -2.2, y: -0.9, z: 0,    sublabel: 'MemTable + SSTable' },
+    { id: 'btree',     label: 'B+Tree Engine',  type: 'storage', x: -0.6, y: -1.0, z: -0.3, sublabel: 'buffer pool + pages' },
+    { id: 'vector',    label: 'Vector Engine',  type: 'storage', x: 0.9,  y: -1.0, z: -0.3, sublabel: 'HNSW k-NN index' },
+    { id: 'wal',       label: 'WAL',            type: 'storage', x: 2.4,  y: -0.9, z: 0,    sublabel: 'durability log' },
+    { id: 'raftcore',  label: 'Raft Core',      type: 'gateway', x: -1.6, y: -2.4, z: 0.6,  sublabel: 'election · log replication' },
+    { id: 'shards',    label: 'Shard Registry', type: 'infra',   x: 0,    y: -2.4, z: 0.9,  sublabel: 'region-aware consensus groups' },
+    { id: 'peer',      label: 'Peer Nodes',     type: 'infra',   x: 1.8,  y: -2.4, z: 0.6,  sublabel: 'raft wire · separate port' },
   ],
   edges: [
-    { from: 'client',    to: 'pgserver'    },
-    { from: 'bench',     to: 'pgserver',   label: 'inject faults', dashed: true },
-    { from: 'pgserver',  to: 'sqlparser'   },
-    { from: 'pgserver',  to: 'txn'         },
-    { from: 'sqlparser', to: 'txn'         },
-    { from: 'txn',       to: 'concurrency' },
-    { from: 'txn',       to: 'lsm'         },
-    { from: 'txn',       to: 'btree'       },
-    { from: 'concurrency', to: 'lsm'       },
-    { from: 'lsm',       to: 'wal'         },
-    { from: 'btree',     to: 'wal'         },
+    { from: 'client',    to: 'pgserver'  },
+    { from: 'pgserver',  to: 'sqlparser' },
+    { from: 'pgserver',  to: 'engine'    },
+    { from: 'sqlparser', to: 'engine'    },
+    { from: 'engine',    to: 'mvcc'      },
+    { from: 'mvcc',      to: 'lsm'       },
+    { from: 'mvcc',      to: 'btree'     },
+    { from: 'mvcc',      to: 'vector'    },
+    { from: 'mvcc',      to: 'wal',      label: 'write-ahead' },
+    { from: 'engine',    to: 'raftcore', label: 'propose DML', dashed: true },
+    { from: 'raftcore',  to: 'shards'    },
+    { from: 'shards',    to: 'peer',     label: 'region placement', dashed: true },
+    { from: 'peer',      to: 'raftcore', label: 'quorum ack', dashed: true },
   ],
 }
 
@@ -123,44 +129,53 @@ const raft: DiagramData = {
 
 // ─── Picturas (RAS) ──────────────────────────────────────────────────────────
 // Actual repo: github.com/rafapeixoto16/RAS
-// 14+ filter microservices, orchestrator hub, K8s/Terraform infra
+// Vue 3 SPA · api-gateway + ws-gateway · users/projects/subscriptions-ms · orchestrator-ms
+// RabbitMQ carries per-filter queues + filters-exchange completion events, referencing
+// file paths on a shared NFS (GCP Filestore) mount; MinIO holds durable originals/results
 const picturas: DiagramData = {
   title: 'Picturas Microservices',
   nodes: [
-    { id: 'web',      label: 'React SPA',      type: 'client',  x: 0,    y: 3.0,  z: 0,    sublabel: 'picturas_web' },
-    { id: 'apigw',    label: 'API Gateway',    type: 'gateway', x: -0.8, y: 1.8,  z: 0,    sublabel: 'REST HTTP' },
-    { id: 'wsgw',     label: 'WS Gateway',     type: 'gateway', x: 0.8,  y: 1.8,  z: 0,    sublabel: 'real-time events' },
-    { id: 'orch',     label: 'Orchestrator',   type: 'gateway', x: 0,    y: 0.6,  z: 0,    sublabel: 'workflow coord.' },
-    { id: 'users',    label: 'users-ms',       type: 'service', x: -2.4, y: -0.6, z: 0,    sublabel: 'auth + users' },
-    { id: 'projects', label: 'projects-ms',    type: 'service', x: -0.8, y: -0.6, z: 0,    sublabel: 'project lifecycle' },
-    { id: 'subs',     label: 'subscriptions',  type: 'service', x: 0.8,  y: -0.6, z: 0,    sublabel: 'billing tiers' },
-    { id: 'filters',  label: 'Filter Workers', type: 'service', x: 2.4,  y: -0.6, z: -0.8, sublabel: 'brightness·resize·ocr\nremove-bg·watermark+9' },
-    { id: 'mongo',    label: 'MongoDB',        type: 'storage', x: -1.2, y: -1.8, z: 0,    sublabel: 'documents + jobs' },
-    { id: 'redis',    label: 'Redis',          type: 'storage', x: 0.4,  y: -1.8, z: 0,    sublabel: 'pub/sub + cache' },
-    { id: 'k8s',      label: 'K8s / Helm',    type: 'infra',   x: 2.2,  y: -1.8, z: 0,    sublabel: 'HPA auto-scaling' },
-    { id: 'tf',       label: 'Terraform',     type: 'infra',   x: 3.2,  y: -1.8, z: 0,    sublabel: 'IaC provisioning' },
+    { id: 'web',      label: 'Vue 3 SPA',       type: 'client',  x: 0,    y: 3.2,  z: 0,    sublabel: 'picturas_web · Vite + Pinia' },
+    { id: 'apigw',    label: 'API Gateway',     type: 'gateway', x: -0.9, y: 2.0,  z: 0,    sublabel: 'REST · JWT · rate limit' },
+    { id: 'wsgw',     label: 'WS Gateway',      type: 'gateway', x: 0.9,  y: 2.0,  z: 0,    sublabel: 'Socket.IO push' },
+    { id: 'users',    label: 'users-ms',        type: 'service', x: -2.6, y: 0.7,  z: 0,    sublabel: 'auth + profile' },
+    { id: 'projects', label: 'projects-ms',     type: 'service', x: -0.9, y: 0.7,  z: 0,    sublabel: 'pipeline CRUD' },
+    { id: 'subs',     label: 'subscriptions-ms',type: 'service', x: 0.6,  y: 0.7,  z: 0,    sublabel: 'Stripe billing' },
+    { id: 'orch',     label: 'orchestrator-ms', type: 'service', x: 2.6,  y: 0.7,  z: -0.3, sublabel: 'pipeline coordinator' },
+    { id: 'rabbitmq', label: 'RabbitMQ',        type: 'infra',   x: 3.4,  y: -0.7, z: 0.6,  sublabel: 'per-filter queues + filters-exchange' },
+    { id: 'filters',  label: 'Filter Workers',  type: 'service', x: 1.9,  y: -1.4, z: -1.0, sublabel: '16+ services · sharp/OCR/etc.' },
+    { id: 'nfs',      label: 'NFS (Filestore)', type: 'storage', x: 0.6,  y: -2.6, z: -0.5, sublabel: 'shared scratch mount' },
+    { id: 'minio',    label: 'MinIO / S3',      type: 'storage', x: -0.9, y: -2.6, z: 0,    sublabel: 'durable originals + results' },
+    { id: 'mongo',    label: 'MongoDB',         type: 'storage', x: -2.6, y: -2.6, z: 0,    sublabel: 'per-service databases' },
+    { id: 'redis',    label: 'Redis',           type: 'infra',   x: -2.8, y: 3.0,  z: -0.5, sublabel: 'rate limit · ws adapter · pipeline state' },
   ],
   edges: [
-    { from: 'web',      to: 'apigw'                },
-    { from: 'web',      to: 'wsgw'                 },
-    { from: 'apigw',    to: 'orch'                 },
-    { from: 'wsgw',     to: 'orch',   dashed: true },
-    { from: 'orch',     to: 'users'                },
-    { from: 'orch',     to: 'projects'             },
-    { from: 'orch',     to: 'subs'                 },
-    { from: 'orch',     to: 'filters', label: 'RabbitMQ queue' },
-    { from: 'users',    to: 'mongo'                },
-    { from: 'projects', to: 'mongo'                },
-    { from: 'filters',  to: 'mongo'                },
-    { from: 'filters',  to: 'redis',  label: 'job done' },
-    { from: 'redis',    to: 'wsgw',   label: 'pub/sub',   dashed: true },
-    { from: 'k8s',      to: 'filters', label: 'scales',   dashed: true },
-    { from: 'tf',       to: 'k8s',    label: 'provisions', dashed: true },
+    { from: 'web',      to: 'apigw'                                },
+    { from: 'web',      to: 'wsgw',      label: 'socket.io',  dashed: true },
+    { from: 'apigw',    to: 'users'                                },
+    { from: 'apigw',    to: 'projects'                             },
+    { from: 'apigw',    to: 'subs'                                 },
+    { from: 'apigw',    to: 'redis',     label: 'rate limit'       },
+    { from: 'wsgw',     to: 'redis',     label: 'socket adapter', dashed: true },
+    { from: 'users',    to: 'mongo'                                },
+    { from: 'projects', to: 'mongo'                                },
+    { from: 'subs',     to: 'mongo'                                },
+    { from: 'projects', to: 'minio',     label: 'store original'   },
+    { from: 'projects', to: 'nfs',       label: 'stage image'      },
+    { from: 'projects', to: 'rabbitmq',  label: 'first filter msg' },
+    { from: 'rabbitmq', to: 'filters',   label: 'per-filter queue' },
+    { from: 'filters',  to: 'nfs',       label: 'read/write file'  },
+    { from: 'filters',  to: 'rabbitmq',  label: 'filters-exchange', dashed: true },
+    { from: 'rabbitmq', to: 'orch',      label: 'completion event' },
+    { from: 'orch',     to: 'redis',     label: 'pipeline state'   },
+    { from: 'orch',     to: 'rabbitmq',  label: 'next stage',       dashed: true },
+    { from: 'orch',     to: 'minio',     label: 'zipped result',    dashed: true },
+    { from: 'rabbitmq', to: 'wsgw',      label: 'notification_queue', dashed: true },
   ],
 }
 
 export const diagrams: Record<string, DiagramData> = {
-  inesdb: inesdb,
+  multigraft: multigraft,
   videostream: videostream,
   raft: raft,
   picturas: picturas,

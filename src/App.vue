@@ -74,13 +74,13 @@ function exitGame() {
                         Rodrigo Casanova
                     </h1>
                     <p class="font-mono text-sm text-gold tracking-wide mt-1">
-                        MSc Distributed Systems
+                        MSc Distributed &amp; Intelligent Systems
                     </p>
                     <p
                         class="text-sm text-ash font-light leading-relaxed mt-2 max-w-[280px]"
                     >
-                        Building distributed systems, database engines, and
-                        embedded software.
+                        Building distributed systems and ML inference
+                        pipelines, from database engines to the edge.
                     </p>
                 </div>
 
@@ -173,7 +173,7 @@ function exitGame() {
             <ActivityCard
                 title="SMARTEX.ai"
                 date="2025 — Present"
-                description="Applied R&D in the embedded engineering team. Developed a PoC for <strong>on-device model compilation</strong> and engineered a custom backend for the <strong>NVIDIA Triton Inference Server</strong>."
+                description="Migrated production computer-vision inference to <strong>NVIDIA Triton</strong> on Jetson Orin edge devices, cutting latency by <strong>34%</strong> and raising defect-detection throughput by <strong>13.5%</strong>. Built a custom C++ Triton Repository Agent enabling zero-downtime <strong>ONNX</strong> model deployment to devices in the field."
                 :last="false"
                 role="Embedded Software Developer Intern"
                 link="https://smartex.ai/"
